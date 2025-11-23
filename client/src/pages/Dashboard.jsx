@@ -24,7 +24,7 @@ export default function Dashboard() {
   const fetchWorkers = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/workers");
+      const response = await axios.get("https://api.halopekerja.com/api/workers");
       setWorkers(response.data);
     } catch (error) {
       console.error("Gagal ambil data:", error);
@@ -57,7 +57,7 @@ export default function Dashboard() {
   const handleDeleteClick = async (id, nama) => {
     if (window.confirm(`Yakin ingin menghapus data "${nama}"?`)) {
         try {
-            await axios.delete(`http://localhost:5000/api/workers/${id}`);
+            await axios.delete(`https://api.halopekerja.com/api/workers/${id}`);
             toast.success("Data berhasil dihapus");
             fetchWorkers(); // Refresh data
         } catch (error) {
@@ -173,7 +173,7 @@ export default function Dashboard() {
                                     <div className="aspect-[4/3] bg-slate-200 relative overflow-hidden">
                                         {worker.photo_url ? (
                                             <img 
-                                                src={`http://localhost:5000/uploads/${worker.photo_url}`} 
+                                                src={`https://api.halopekerja.com/uploads/${worker.photo_url}`} 
                                                 className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
                                                 alt={worker.name} 
                                             />

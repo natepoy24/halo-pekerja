@@ -31,7 +31,7 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
     const fetchData = async () => {
       try {
         const idToFetch = workerId || 1; 
-        const response = await axios.get(`http://localhost:5000/api/workers/${idToFetch}`);
+        const response = await axios.get(`https://api.halopekerja.com/api/workers/${idToFetch}`);
         const data = response.data;
 
         // --- LOGIKA PERBAIKAN BAHASA ---
@@ -90,7 +90,7 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
         setSukuSelect(sukuDropdown);
         
         if (data.photo_url) {
-            setPreviewFoto(`http://localhost:5000/uploads/${data.photo_url}`);
+            setPreviewFoto(`https://api.halopekerja.com/uploads/${data.photo_url}`);
         }
 
       } catch (error) {
@@ -176,7 +176,7 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
       // PERBAIKAN DI SINI: Gunakan workerId dari props, atau fallback ke 1
       const idToUpdate = workerId || 1;
       
-      await axios.put(`http://localhost:5000/api/workers/${idToUpdate}`, dataToSend, {
+      await axios.put(`https://api.halopekerja.com/api/workers/${idToUpdate}`, dataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

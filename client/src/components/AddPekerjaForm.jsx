@@ -104,7 +104,7 @@ export default function AddPekerjaForm({ onSuccess }) {
 
     try {
       // Kirim ke backend (sesuaikan port jika beda)
-      await axios.post('http://localhost:5000/api/workers', dataToSend, {
+      await axios.post('https://api.halopekerja.com/api/workers', dataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

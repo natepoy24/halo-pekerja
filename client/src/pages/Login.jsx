@@ -15,7 +15,7 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/login", { username, password });
+      const res = await axios.post("https://api.halopekerja.com/api/login", { username, password });
       
       // SIMPAN TIKET, NAMA, DAN ROLE
       localStorage.setItem("token", res.data.token);

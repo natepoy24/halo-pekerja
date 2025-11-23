@@ -16,7 +16,7 @@ export default function AdminManagement() {
   // Ambil data admin saat komponen dibuka
   const fetchAdmins = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/admins");
+      const res = await axios.get("https://api.halopekerja.com/api/admins");
       setAdmins(res.data);
     } catch (error) {
       toast.error("Gagal memuat data admin");
@@ -40,12 +40,12 @@ export default function AdminManagement() {
     try {
       if (isEditing) {
         // Mode Edit
-        await axios.put(`http://localhost:5000/api/admins/${editId}`, formData);
+        await axios.put(`https://api.halopekerja.com/api/admins/${editId}`, formData);
         toast.success("Admin berhasil diupdate");
       } else {
         // Mode Tambah Baru
         if (!formData.password) return toast.error("Password wajib diisi untuk admin baru");
-        await axios.post("http://localhost:5000/api/admins", formData);
+        await axios.post("https://api.halopekerja.com/api/admins", formData);
         toast.success("Admin baru berhasil dibuat");
       }
       fetchAdmins();
@@ -72,7 +72,7 @@ export default function AdminManagement() {
   const handleDelete = async (id) => {
     if (window.confirm("Yakin hapus admin ini?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/admins/${id}`);
+        await axios.delete(`https://api.halopekerja.com/api/admins/${id}`);
         toast.success("Admin dihapus");
         fetchAdmins();
       } catch (error) {

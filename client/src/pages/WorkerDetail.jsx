@@ -16,7 +16,7 @@ export default function WorkerDetail() {
   useEffect(() => {
     const fetchWorkerDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/workers/${id}`);
+        const response = await axios.get(`https://api.halopekerja.com/api/workers/${id}`);
         setWorker(response.data);
       } catch (err) {
         console.error(err);
@@ -57,7 +57,7 @@ export default function WorkerDetail() {
     "name": worker.name,
     "jobTitle": worker.category,
     "description": worker.description || `Profil ${worker.category} bernama ${worker.name}, usia ${worker.age} tahun, asal dari ${worker.origin}.`,
-    "image": worker.photo_url ? `http://localhost:5000/uploads/${worker.photo_url}` : null,
+    "image": worker.photo_url ? `https://api.halopekerja.com/uploads/${worker.photo_url}` : null,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": worker.origin,
@@ -76,7 +76,7 @@ export default function WorkerDetail() {
         {/* Open Graph Tags untuk Media Sosial */}
         <meta property="og:title" content={`${worker.name} - ${worker.category}`} />
         <meta property="og:description" content={worker.description || `Profil lengkap ${worker.name}, seorang ${worker.category} berpengalaman.`} />
-        {worker.photo_url && <meta property="og:image" content={`http://localhost:5000/uploads/${worker.photo_url}`} />}
+        {worker.photo_url && <meta property="og:image" content={`https://api.halopekerja.com/uploads/${worker.photo_url}`} />}
         
         {/* Structured Data (JSON-LD) */}
         <script type="application/ld+json">
@@ -99,8 +99,8 @@ export default function WorkerDetail() {
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sticky top-24">
                 <div className="aspect-[3/4] bg-slate-100 rounded-xl overflow-hidden mb-6 relative">
                   {worker.photo_url ? (
-                    <img 
-                      src={`http://localhost:5000/uploads/${worker.photo_url}`} 
+                    <img
+                      src={`https://api.halopekerja.com/uploads/${worker.photo_url}`}
                       alt={worker.name} 
                       className="w-full h-full object-cover" 
                     />

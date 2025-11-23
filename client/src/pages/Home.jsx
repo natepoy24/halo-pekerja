@@ -14,7 +14,7 @@ export default function Home() {
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/workers");
+        const response = await axios.get("https://api.halopekerja.com/api/workers");
         // Filter hanya yang statusnya "Tersedia" agar user tidak kecewa
         const availableWorkers = response.data.filter(w => w.status === 'Tersedia');
         setWorkers(availableWorkers);
@@ -172,7 +172,7 @@ export default function Home() {
                             <div>
                                 <div className="relative w-full aspect-square bg-slate-200 overflow-hidden">
                                     {worker.photo_url ? (
-                                        <img src={`http://localhost:5000/uploads/${worker.photo_url}`} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt={worker.name} />
+                                        <img src={`https://api.halopekerja.com/uploads/${worker.photo_url}`} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt={worker.name} />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-400"><Users size={40} /></div>
                                     )}
