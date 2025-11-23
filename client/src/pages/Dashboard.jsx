@@ -233,8 +233,7 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* VIEW 2: TAMBAH & EDIT PEKERJA */}
-            {view === "add" && <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200"><AddPekerjaForm onSuccess={handleSuccess} /></div>}
+            {/* VIEW 2: EDIT PEKERJA */}
             {view === "edit" && <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200"><EditPekerjaForm workerId={selectedWorkerId} onCancel={() => setView("list")} onSuccess={handleSuccess} /></div>}
 
             {/* VIEW 3: MANAJEMEN USER (SUPERADMIN) */}

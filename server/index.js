@@ -58,7 +58,7 @@ app.post('/api/workers', upload.single('fotoUrl'), async (req, res) => {
         const sql = `
             INSERT INTO workers 
             (name, age, category, origin, marital_status, religion, education, tribe, experience, skills, shortcomings, languages, status, salary, description, photo_url) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const values = [
