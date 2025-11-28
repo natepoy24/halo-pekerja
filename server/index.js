@@ -323,6 +323,71 @@ app.delete('/api/admins/:id', async (req, res) => {
     }
 });
 
+// --- FUNGSI BANTUAN: MEMBUAT SLUG ---
+const createSlug = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, '-')           // Ganti spasi dengan -
+        .replace(/[^\w\-]+/g, '')       // Hapus karakter non-word
+        .replace(/\-\-+/g, '-')         // Ganti multiple - dengan single -
+        .replace(/^-+/, '')             // Trim - di awal
+        .replace(/-+$/, '');            // Trim - di akhir
+};
+
+// ================= MANAJEMEN ARTIKEL (BLOG) =================
+
+// 1. AMBIL SEMUA ARTIKEL (Untuk List)
+app.get('/api/articles', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM articles ORDER BY created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal ambil artikel' });
+    }
+});
+
+// 2. AMBIL 1 ARTIKEL BERDASARKAN SLUG (Untuk Halaman Detail/Baca)
+app.get('/api/articles/:slug', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM articles WHERE slug = ?', [req.params.slug]);
+        if (rows.length === 0) return res.status(404).json({ message: 'Artikel tidak ditemukan' });
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: 'Error server' });
+    }
+});
+
+// 3. TAMBAH ARTIKEL BARU
+app.post('/api/articles', upload.single('image'), async (req, res) => {
+    try {
+        const { title, content, meta_title, meta_description } = req.body;
+        const file = req.file;
+        const image_url = file ? file.filename : null;
+        
+        // Buat slug otomatis dari title + angka acak dikit biar unik
+        const slug = createSlug(title) + '-' + Math.floor(Math.random() * 1000);
+
+        const sql = `INSERT INTO articles (title, slug, content, image_url, meta_title, meta_description) VALUES (?, ?, ?, ?, ?, ?)`;
+        await db.query(sql, [title, slug, content, image_url, meta_title, meta_description]);
+
+        res.json({ message: 'Artikel berhasil diterbitkan!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal posting artikel' });
+    }
+});
+
+// 4. HAPUS ARTIKEL
+app.delete('/api/articles/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM articles WHERE id = ?', [req.params.id]);
+        res.json({ message: 'Artikel dihapus' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal hapus' });
+    }
+});
+
 // --- JALANKAN SERVER ---
 app.listen(PORT, () => {
     console.log(`🚀 Server berjalan di port ${PORT}`);

@@ -9,6 +9,8 @@ import Contact from "./pages/Contact";
 import Gallery from "./pages/Gallery";
 import WorkerDetail from "./pages/WorkerDetail";
 import PublicLayout from "./components/PublicLayout";
+import BlogList from "./pages/BlogList";
+import BlogDetail from "./pages/BlogDetail";
 
 // Komponen Satpam (Protected Route)
 // Tugasnya ngecek: "Ada token gak?"
@@ -37,6 +39,8 @@ function App() {
             <Route path="/galeri" element={<Gallery />} />
             <Route path="/kontak" element={<Contact />} />
             <Route path="/pekerja/:id" element={<WorkerDetail />} />
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:slug" element={<BlogDetail />} />
           </Route>
 
           {/* Rute Standalone */}
