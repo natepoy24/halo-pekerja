@@ -9,6 +9,8 @@ export default function ArticleForm({ onSuccess }) {
     title: "", content: "", meta_title: "", meta_description: "", image: null
   });
 
+  const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -17,7 +19,7 @@ export default function ArticleForm({ onSuccess }) {
 
     try {
       // Ganti URL sesuai domain API kamu nanti
-      await axios.post("https://halopekerja.com/api/articles", data, {
+      await axios.post(`${API_URL}/api/articles`, data, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       toast.success("Artikel berhasil diterbitkan!");

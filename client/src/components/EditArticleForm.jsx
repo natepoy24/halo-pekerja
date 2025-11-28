@@ -18,7 +18,7 @@ const EditArticleForm = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    const API_URL = process.env.REACT_APP_API_URL || 'https://halopekerja.com';
+    const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
 
     useEffect(() => {
         const fetchArticle = async () => {

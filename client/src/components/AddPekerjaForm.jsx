@@ -96,9 +96,7 @@ export default function AddPekerjaForm({ onSuccess }) {
     });
 
     try {
-      // Pastikan URL mengarah ke API yang benar
-      // Jika tes lokal, gunakan localhost. Jika sudah live, gunakan domain API.
-      // Saya kembalikan ke domain API sesuai kode dashboard Anda:
+    
       await axios.post('https://api.halopekerja.com/api/workers', dataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });

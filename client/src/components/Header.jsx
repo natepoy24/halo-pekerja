@@ -37,6 +37,7 @@ export default function Header() {
             <Link to="/layanan" className={`text-sm font-medium transition-colors ${location.pathname === '/layanan' ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Layanan</Link>
             <a href="/#katalog" className="text-sm font-medium text-slate-600 hover:text-purple-700 transition-colors">List Pekerja</a>
             <Link to="/galeri" className={`text-sm font-medium transition-colors ${location.pathname === '/galeri' ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Galeri</Link>
+            <Link to="/blog" className={`text-sm font-medium transition-colors ${location.pathname.startsWith('/blog') ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Blog</Link>
             <Link to="/kontak" className={`text-sm font-medium transition-colors ${location.pathname === '/kontak' ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Kontak</Link>
             
             {/* Tombol Login */}
@@ -96,6 +97,9 @@ export default function Header() {
               <a href="/#katalog" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-700 hover:text-purple-700 py-2 border-b border-slate-50">
                 List Pekerja
               </a>
+              <Link to="/blog" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-700 hover:text-purple-700 py-2 border-b border-slate-50">
+                Blog
+              </Link>
               <Link to="/galeri" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-700 hover:text-purple-700 py-2 border-b border-slate-50">
                 Galeri
               </Link>

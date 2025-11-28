@@ -24,7 +24,7 @@ export default function Dashboard() {
   // State untuk Artikel
   const [articles, setArticles] = useState([]);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
 
   // --- FUNGSI AMBIL DATA ---
   const fetchWorkers = async () => {

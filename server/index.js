@@ -420,10 +420,25 @@ app.put('/api/articles/:id', upload.single('image'), async (req, res) => {
 // 4. HAPUS ARTIKEL
 app.delete('/api/articles/:id', async (req, res) => {
     try {
-        await db.query('DELETE FROM articles WHERE id = ?', [req.params.id]);
-        res.json({ message: 'Artikel dihapus' });
+        const { id } = req.params;
+
+        // 1. Ambil nama file gambar dari DB sebelum dihapus
+        const [rows] = await db.query('SELECT image_url FROM articles WHERE id = ?', [id]);
+
+        // 2. Jika ada gambar, hapus filenya dari folder 'uploads'
+        if (rows.length > 0 && rows[0].image_url) {
+            const imagePath = path.join(__dirname, 'uploads', rows[0].image_url);
+            // Cek apakah file benar-benar ada, lalu hapus
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+
+        // 3. Hapus data artikel dari database
+        await db.query('DELETE FROM articles WHERE id = ?', [id]);
+        res.json({ message: 'Artikel berhasil dihapus' });
     } catch (error) {
-        res.status(500).json({ message: 'Gagal hapus' });
+        res.status(500).json({ message: 'Gagal menghapus artikel' });
     }
 });
 
