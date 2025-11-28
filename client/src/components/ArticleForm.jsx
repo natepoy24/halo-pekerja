@@ -6,7 +6,7 @@ import { Save, Upload, Loader2 } from "lucide-react";
 export default function ArticleForm({ onSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: "", content: "", meta_title: "", meta_description: "", image: null
+    title: "", content: "", meta_title: "", meta_description: "", image: null, image_alt: ""
   });
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
@@ -24,7 +24,7 @@ export default function ArticleForm({ onSuccess }) {
       });
       toast.success("Artikel berhasil diterbitkan!");
       if (onSuccess) onSuccess();
-      setFormData({ title: "", content: "", meta_title: "", meta_description: "", image: null });
+      setFormData({ title: "", content: "", meta_title: "", meta_description: "", image: null, image_alt: "" });
     } catch (error) {
       toast.error("Gagal posting artikel.");
     } finally {
@@ -52,6 +52,11 @@ export default function ArticleForm({ onSuccess }) {
         <div>
             <label className="block text-sm font-bold text-slate-700">Gambar Utama</label>
             <input type="file" accept="image/*" onChange={e => setFormData({...formData, image: e.target.files[0]})} className="w-full text-sm text-slate-500" />
+        </div>
+        <div>
+            <label className="block text-sm font-bold text-slate-700">Teks Alternatif Gambar (Alt Text)</label>
+            <input type="text" className="w-full p-2 border rounded" placeholder="Deskripsi singkat tentang gambar untuk SEO"
+                value={formData.image_alt} onChange={e => setFormData({...formData, image_alt: e.target.value})} />
         </div>
 
         {/* BAGIAN KHUSUS SEO */}

@@ -4,10 +4,10 @@ import './index.css'
 import App from './App.jsx'
 import { HelmetProvider } from 'react-helmet-async';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <HelmetProvider> {/* <-- Bungkus App dengan ini */}
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <HelmetProvider>
       <App />
     </HelmetProvider>
-  </React.StrictMode>,
+  </StrictMode>,
 )

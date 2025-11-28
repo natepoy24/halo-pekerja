@@ -342,15 +342,15 @@ app.get('/api/articles/:slug', async (req, res) => {
 // Endpoint untuk menambah artikel baru.
 app.post('/api/articles', upload.single('image'), async (req, res) => {
     try {
-        const { title, content, meta_title, meta_description } = req.body;
+        const { title, content, meta_title, meta_description, image_alt } = req.body;
         const file = req.file;
         const image_url = file ? file.filename : null;
         
         // Buat slug unik dari judul.
         const slug = createSlug(title) + '-' + Math.floor(Math.random() * 1000);
 
-        const sql = `INSERT INTO articles (title, slug, content, image_url, meta_title, meta_description) VALUES (?, ?, ?, ?, ?, ?)`;
-        await db.query(sql, [title, slug, content, image_url, meta_title, meta_description]);
+        const sql = `INSERT INTO articles (title, slug, content, image_url, meta_title, meta_description, image_alt) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        await db.query(sql, [title, slug, content, image_url, meta_title, meta_description, image_alt]);
 
         res.json({ message: 'Artikel berhasil diterbitkan!' });
     } catch (error) {
@@ -363,11 +363,11 @@ app.post('/api/articles', upload.single('image'), async (req, res) => {
 app.put('/api/articles/:id', upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, meta_title, meta_description } = req.body;
+        const { title, content, meta_title, meta_description, image_alt } = req.body;
         const file = req.file;
 
-        let sql = 'UPDATE articles SET title=?, content=?, meta_title=?, meta_description=?';
-        const values = [title, content, meta_title, meta_description];
+        let sql = 'UPDATE articles SET title=?, content=?, meta_title=?, meta_description=?, image_alt=?';
+        const values = [title, content, meta_title, meta_description, image_alt];
 
         // Jika ada file gambar baru, hapus yang lama dan perbarui.
         if (file) {

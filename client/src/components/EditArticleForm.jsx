@@ -8,7 +8,8 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
         title: '',
         content: '',
         meta_title: '',
-        meta_description: ''
+        meta_description: '',
+        image_alt: ''
     });
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState('');
@@ -30,7 +31,8 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
                         title: articleToEdit.title,
                         content: articleToEdit.content,
                         meta_title: articleToEdit.meta_title || '',
-                        meta_description: articleToEdit.meta_description || ''
+                        meta_description: articleToEdit.meta_description || '',
+                        image_alt: articleToEdit.image_alt || ''
                     });
                     if (articleToEdit.image_url) {
                         setPreview(`${API_URL}/uploads/${articleToEdit.image_url}`);
@@ -74,6 +76,7 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
         formData.append('content', article.content);
         formData.append('meta_title', article.meta_title);
         formData.append('meta_description', article.meta_description);
+        formData.append('image_alt', article.image_alt);
         if (image) {
             formData.append('image', image);
         }
@@ -122,6 +125,11 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
                     <label className="block text-sm font-bold text-slate-700">Gambar Unggulan (Kosongkan jika tidak ingin ganti)</label>
                     <input type="file" name="image" onChange={handleImageChange} accept="image/*" className="w-full text-sm text-slate-500" />
                     {preview && <img src={preview} alt="Preview" className="mt-4 w-48 h-auto rounded-lg" />}
+                </div>
+                <div>
+                    <label className="block text-sm font-bold text-slate-700">Teks Alternatif Gambar (Alt Text)</label>
+                    <input type="text" name="image_alt" value={article.image_alt} onChange={handleChange} className="w-full p-2 border rounded" 
+                        placeholder="Deskripsi singkat tentang gambar untuk SEO" />
                 </div>
 
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-3">
