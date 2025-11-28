@@ -19,7 +19,7 @@ export default function ArticleForm({ onSuccess }) {
 
     try {
       // Ganti URL sesuai domain API kamu nanti
-      await axios.post(`${API_URL}/api/articles`, data, {
+      await axios.post(`${API_URL}/articles`, data, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       toast.success("Artikel berhasil diterbitkan!");

@@ -23,7 +23,7 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
         const fetchArticle = async () => {
             setIsFetching(true);
             try {
-                const response = await axios.get(`${API_URL}/api/articles`);
+                const response = await axios.get(`${API_URL}/articles`);
                 const articleToEdit = response.data.find(art => art.id === parseInt(articleId));
 
                 if (articleToEdit) {
@@ -83,7 +83,7 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/api/articles/${articleId}`, formData, {
+            await axios.put(`${API_URL}/articles/${articleId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`

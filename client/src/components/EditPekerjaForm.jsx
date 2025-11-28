@@ -6,6 +6,7 @@ import { Upload, Save, Loader2 } from "lucide-react";
 export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [loaded, setLoaded] = useState(false);
   const [previewFoto, setPreviewFoto] = useState(null);
   const fileInputRef = useRef(null);
   
@@ -26,81 +27,102 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const idToFetch = workerId || 1; 
-        const response = await axios.get(`https://api.halopekerja.com/api/workers/${idToFetch}`);
-        const data = response.data;
+    if (loaded) return;
 
-        // Logika untuk memisahkan bahasa standar dan bahasa lainnya dari database.
-        let standardLangs = [];
-        let customLangs = [];
-
-        if (data.languages) {
-            const allLangs = data.languages.split(',').map(l => l.trim());
-            
-            allLangs.forEach(lang => {
-                if (STANDARD_LANGUAGES.includes(lang)) {
-                    standardLangs.push(lang);
-                } else if (lang !== "") {
-                    customLangs.push(lang);
-                }
+    let isMounted = true; // Flag untuk melacak status mount komponen
+    const fetchWorkerData = async () => {
+      if (workerId) { // Pastikan hanya berjalan jika ada workerId
+        try {
+          const idToFetch = workerId || 1; 
+          const response = await axios.get(`https://api.halopekerja.com/api/workers/${idToFetch}`);
+          const data = response.data;
+  
+          if (isMounted) { // Hanya update state jika komponen masih ter-mount
+            // Logika untuk memisahkan bahasa standar dan bahasa lainnya dari database.
+            let standardLangs = [];
+            let customLangs = [];
+    
+            if (data.languages) {
+                const allLangs = data.languages.split(',').map(l => l.trim());
+                
+                allLangs.forEach(lang => {
+                    if (STANDARD_LANGUAGES.includes(lang)) {
+                        standardLangs.push(lang);
+                    } else if (lang !== "") {
+                        customLangs.push(lang);
+                    }
+                });
+            }
+    
+            if (customLangs.length > 0) {
+                setBahasaLainChecked(true);
+                setBahasaLainInput(customLangs.join(', '));
+            }
+    
+            // Logika untuk menentukan nilai dropdown suku.
+            const standardSuku = ["Jawa", "Sunda", "Batak", "Madura"];
+            let sukuDropdown = "Lainnya";
+            if (standardSuku.includes(data.tribe)) {
+                sukuDropdown = data.tribe;
+            } else if (!data.tribe || data.tribe === '-') {
+                sukuDropdown = "";
+            }
+    
+            // Set state form dengan data yang sudah diolah
+            setFormData({
+                nama: data.name,
+                umur: data.age || 0,
+                kategori: data.category || "Asisten Rumah Tangga",
+                status: data.status,
+                pengalaman: data.experience || 0,
+                gaji: data.salary || 0,
+                lokasi: data.origin,
+                suku: data.tribe,
+                status_perkawinan: data.marital_status,
+                agama: data.religion,
+                pendidikan: data.education || "SD",
+                bahasa_asing: standardLangs,
+                keterampilan: data.skills || '',
+                kekurangan: data.shortcomings || '',
+                deskripsi: data.description || '',
+                fotoUrl: null
             });
-        }
-
-        if (customLangs.length > 0) {
-            setBahasaLainChecked(true);
+    
+            setSukuSelect(sukuDropdown);
+            setBahasaLainChecked(customLangs.length > 0);
             setBahasaLainInput(customLangs.join(', '));
+            
+            if (data.photo_url) {
+                setPreviewFoto(`https://api.halopekerja.com/uploads/${data.photo_url}`);
+            }
+            setLoaded(true);
+          }
+  
+        } catch (error) {
+          if (isMounted) toast.error("Gagal mengambil data pekerja untuk diedit.");
+        } finally {
+          if (isMounted) setIsFetching(false);
         }
-
-        // Logika untuk menentukan nilai dropdown suku.
-        const standardSuku = ["Jawa", "Sunda", "Batak", "Madura"];
-        let sukuDropdown = "Lainnya";
-        if (standardSuku.includes(data.tribe)) {
-            sukuDropdown = data.tribe;
-        } else if (!data.tribe || data.tribe === '-') {
-            sukuDropdown = "";
-        }
-
-        setFormData({
-            nama: data.name,
-            umur: data.age,
-            kategori: data.category || "Asisten Rumah Tangga",
-            status: data.status,
-            pengalaman: data.experience,
-            gaji: data.salary,
-            lokasi: data.origin,
-            suku: data.tribe,
-            status_perkawinan: data.marital_status,
-            agama: data.religion,
-            pendidikan: data.education || "SD",
-            bahasa_asing: standardLangs,
-            keterampilan: data.skills,
-            kekurangan: data.shortcomings,
-            deskripsi: data.description,
-            fotoUrl: null
-        });
-
-        setSukuSelect(sukuDropdown);
-        
-        if (data.photo_url) {
-            setPreviewFoto(`https://api.halopekerja.com/uploads/${data.photo_url}`);
-        }
-
-      } catch (error) {
-        toast.error("Gagal mengambil data pekerja.");
-        console.error(error);
-      } finally {
-        setIsFetching(false);
       }
     };
 
-    fetchData();
-  }, [workerId]);
+    fetchWorkerData();
+
+    // Fungsi cleanup untuk useEffect
+    return () => {
+      isMounted = false;
+    };
+  }, [workerId, loaded]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type } = e.target;
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === "number"
+        ? (value === "" ? "" : Number(value))
+        : value
+    }));
   };
 
   const handleSukuSelectChange = (e) => {

@@ -40,7 +40,7 @@ export default function Dashboard() {
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/articles`);
+      const response = await axios.get(`${API_URL}/articles`);
       setArticles(response.data);
     } catch (error) {
       console.error("Gagal ambil data artikel:", error);
@@ -70,11 +70,14 @@ export default function Dashboard() {
   };
 
   const handleSuccess = () => {
-    setView("list");
     fetchWorkers();
-    // Buat fungsi sukses terpisah untuk artikel agar kembali ke list artikel
-    setView("list-articles"); 
-    fetchArticles(); 
+    setView("list"); // Kembali ke daftar pekerja setelah sukses
+  };
+
+  // Fungsi sukses khusus untuk artikel
+  const handleArticleSuccess = () => {
+    fetchArticles();
+    setView("list-articles"); // Kembali ke daftar artikel setelah sukses
   };
 
   const handleDeleteClick = async (id, nama) => {
@@ -92,7 +95,7 @@ export default function Dashboard() {
   const handleArticleDeleteClick = async (id, title) => {
     if (window.confirm(`Yakin ingin menghapus artikel "${title}"?`)) {
         try {
-            await axios.delete(`${API_URL}/api/articles/${id}`);
+            await axios.delete(`${API_URL}/articles/${id}`);
             toast.success("Artikel berhasil dihapus");
             fetchArticles(); // Refresh data
         } catch (error) {
@@ -345,7 +348,7 @@ export default function Dashboard() {
                     <button onClick={() => setView("list-articles")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
                         &larr; Kembali ke List Artikel
                     </button>
-                    <EditArticleForm articleId={selectedArticleId} onCancel={() => setView("list-articles")} onSuccess={handleSuccess} />
+                    <EditArticleForm articleId={selectedArticleId} onCancel={() => setView("list-articles")} onSuccess={handleArticleSuccess} />
                  </div>
             )}
 
