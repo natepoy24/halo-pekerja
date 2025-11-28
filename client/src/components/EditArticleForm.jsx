@@ -16,7 +16,7 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState('');
 
-    const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
 
     useEffect(() => {
         const fetchArticle = async () => {

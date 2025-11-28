@@ -25,35 +25,33 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <HelmetProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Rute publik yang menggunakan layout standar (Header & Footer). */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/layanan" element={<Services />} />
-            <Route path="/tentang-kami" element={<About />} />
-            <Route path="/galeri" element={<Gallery />} />
-            <Route path="/kontak" element={<Contact />} />
-            <Route path="/pekerja/:id" element={<WorkerDetail />} />
-            <Route path="/blog" element={<BlogList />} />
-            <Route path="/blog/:slug" element={<BlogDetail />} />
-          </Route>
+    <BrowserRouter>
+      <Routes>
+        {/* Rute publik yang menggunakan layout standar (Header & Footer). */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/layanan" element={<Services />} />
+          <Route path="/tentang-kami" element={<About />} />
+          <Route path="/galeri" element={<Gallery />} />
+          <Route path="/kontak" element={<Contact />} />
+          <Route path="/pekerja/:id" element={<WorkerDetail />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogDetail />} />
+        </Route>
 
-          {/* Rute yang tidak menggunakan layout standar. */}
-          <Route path="/login" element={<Login />} />
-          {/* Rute admin yang dilindungi. */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
-      </BrowserRouter>
-    </HelmetProvider>
+        {/* Rute yang tidak menggunakan layout standar. */}
+        <Route path="/login" element={<Login />} />
+        {/* Rute admin yang dilindungi. */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

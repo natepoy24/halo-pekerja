@@ -24,7 +24,7 @@ export default function Dashboard() {
   // State untuk manajemen artikel
   const [articles, setArticles] = useState([]);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
-  const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
+  const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
   const fetchWorkers = async () => {
     setIsLoading(true);
     try {
