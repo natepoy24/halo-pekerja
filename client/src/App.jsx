@@ -11,19 +11,16 @@ import WorkerDetail from "./pages/WorkerDetail";
 import PublicLayout from "./components/PublicLayout";
 import BlogList from "./pages/BlogList";
 import BlogDetail from "./pages/BlogDetail";
-import EditArticlePage from "./pages/EditArticlePage"; // Halaman khusus edit artikel
+import EditArticlePage from "./pages/admin/EditArticlePage";
 
-// Komponen Satpam (Protected Route)
-// Tugasnya ngecek: "Ada token gak?"
+// Komponen untuk melindungi rute yang memerlukan otentikasi.
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   
   if (!token) {
-    // Kalau gak ada token, lempar ke login
     return <Navigate to="/login" replace />;
   }
   
-  // Kalau ada, silakan masuk
   return children;
 };
 
@@ -32,7 +29,7 @@ function App() {
     <HelmetProvider>
       <BrowserRouter>
         <Routes>
-          {/* Rute Publik dengan Header & Footer */}
+          {/* Rute publik yang menggunakan layout standar (Header & Footer). */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/layanan" element={<Services />} />
@@ -44,9 +41,9 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetail />} />
           </Route>
 
-          {/* Rute Standalone */}
+          {/* Rute yang tidak menggunakan layout standar. */}
           <Route path="/login" element={<Login />} />
-          {/* Rute Admin yang Dijaga Satpam */}
+          {/* Rute admin yang dilindungi. */}
           <Route 
             path="/admin" 
             element={
@@ -55,7 +52,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          {/* Rute untuk Edit Artikel */}
+          {/* Rute untuk halaman edit artikel. */}
           <Route 
             path="/admin/edit-article/:id" 
             element={

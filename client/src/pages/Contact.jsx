@@ -4,11 +4,10 @@ import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 export default function Contact() {
   const handleSendMessage = (e) => {
     e.preventDefault();
-    // Simulasi kirim pesan (bisa dikembangkan nanti ke Backend)
     const nama = e.target.nama.value;
     const pesan = e.target.pesan.value;
     
-    // Redirect ke WA dengan pesan yang diisi
+    // Mengarahkan pengguna ke WhatsApp dengan pesan yang sudah terisi.
     const waLink = `https://wa.me/6285781823040?text=Halo admin, saya ${nama}. ${pesan}`;
     window.open(waLink, "_blank");
   };

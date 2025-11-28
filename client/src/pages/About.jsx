@@ -34,8 +34,7 @@ export default function About() {
       {/* Story Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative">
-             {/* Menggunakan gambar hero yang sama, atau ganti dengan foto tim/kantor jika ada */}
+          <div className="relative"> 
              <div className="aspect-video bg-slate-200 rounded-2xl overflow-hidden shadow-lg">
                 <img src="/hero-tentang.jpeg" alt="Tim Penyalur Pembantu" className="w-full h-full object-cover" />
              </div>

@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 export default function Gallery() {
-  // Asumsikan nama file gambar ada di dalam folder /public/gallery/
+  // Daftar gambar untuk galeri, diambil dari direktori /public/gallery/.
   const galleryImages = [
     { src: "/gallery/1.png", alt: "foto bersama semua calon pekerja" },
     { src: "/gallery/2.png", alt: "Pemberian materi secara tertulis" },

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './AdminForm.css'; // Re-use the same CSS for consistency
 
 const EditArticleForm = () => {
     const { id } = useParams();

@@ -10,7 +10,7 @@ export default function Home() {
   const [workers, setWorkers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- 1. AMBIL DATA DARI DATABASE ---
+  // Mengambil data pekerja dari API saat komponen dimuat.
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
@@ -27,9 +27,9 @@ export default function Home() {
     fetchWorkers();
   }, []);
 
-  // --- 2. FUNGSI WHATSAPP ---
+  // Handler untuk mengarahkan pengguna ke WhatsApp dengan pesan template.
   const handleContact = (workerName, workerCategory) => {
-    const phoneNumber = "6285781823040"; // GANTI DENGAN NOMOR WA BISNIS KAMU (Format: 628...)
+    const phoneNumber = "6285781823040";
     const message = `Halo Admin Penyalur Pembantu, saya tertarik dengan profil pekerja: ${workerName}, Kategori: ${workerCategory}. Apakah masih tersedia?`;
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
   };
@@ -87,11 +87,9 @@ export default function Home() {
                 </div>
             </div>
             <div className="order-1 md:order-2 relative">
-                {/* Pastikan file hero.jpg ada di folder client/public/hero.jpg */}
                 <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl relative z-10">
                     <img src="/hero.jpg" alt="Keluarga Bahagia" className="w-full h-full object-cover" />
                 </div>
-                {/* Aksen Dekorasi */}
                 <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-yellow-400 rounded-full z-0 opacity-50 blur-2xl"></div>
                 <div className="absolute -top-6 -right-6 w-32 h-32 bg-purple-600 rounded-full z-0 opacity-20 blur-3xl"></div>
             </div>
@@ -153,7 +151,6 @@ export default function Home() {
                     <h2 className="text-3xl font-bold text-slate-800 mb-2">Tenaga Kerja Tersedia</h2>
                     <p className="text-slate-600">Pilih kandidat terbaik yang siap bekerja hari ini.</p>
                 </div>
-                {/* Tombol filter sederhana bisa ditaruh disini nanti */}
             </div>
 
             {isLoading ? (
@@ -196,7 +193,7 @@ export default function Home() {
 
                                     <button 
                                         onClick={(e) => {
-                                            e.preventDefault(); // Mencegah link ter-trigger saat tombol WA diklik
+                                            e.preventDefault(); // Mencegah navigasi saat tombol WhatsApp diklik.
                                             handleContact(worker.name, worker.category);
                                         }}
                                         className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2"

@@ -1,11 +1,9 @@
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
 
-// Membaca file .env
 dotenv.config();
 
-// Membuat kolam koneksi (Connection Pool)
-// Kita pakai 'pool' agar koneksi tidak putus-nyambung terus menerus
+// Inisialisasi connection pool untuk manajemen koneksi database yang efisien.
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -17,15 +15,15 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// Cek koneksi saat file ini dijalankan pertama kali
+// Verifikasi koneksi ke database saat aplikasi dimulai.
 db.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Gagal terhubung ke Database cPanel:', err.message);
     } else {
         console.log('✅ Berhasil terhubung ke Database cPanel!');
-        connection.release(); // Kembalikan koneksi ke pool
+        connection.release(); // Melepas koneksi kembali ke pool.
     }
 });
 
-// Kita export agar bisa dipakai di file lain
+// Ekspor pool dalam bentuk promise untuk mendukung async/await.
 module.exports = db.promise();

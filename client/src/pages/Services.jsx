@@ -3,12 +3,12 @@ import { CheckCircle, Clock, DollarSign, ShieldCheck, Star } from "lucide-react"
 import FaqAccordion from "../components/FaqAccordion";
 
 export default function Services() {
-  // Data Layanan (Bisa dipindah ke database nanti jika perlu)
+  // Data statis untuk layanan yang ditawarkan.
   const services = [
     {
       id: "art",
       title: "Asisten Rumah Tangga (ART)",
-      image: "/1.png", // Foto dari folder public
+      image: "/1.png",
       description: "Solusi utama untuk menjaga kebersihan dan keteraturan rumah Anda. ART kami terlatih dalam manajemen rumah tangga dasar hingga mendalam.",
       tasks: [
         "Menyapu, mengepel, dan membersihkan debu seluruh ruangan.",
@@ -23,7 +23,7 @@ export default function Services() {
     {
       id: "lansia",
       title: "Perawat Lansia (Caregiver)",
-      image: "/2.png", // Foto dari folder public
+      image: "/2.png",
       description: "Pendamping profesional untuk orang tua tercinta. Fokus pada kenyamanan, kesehatan, dan keamanan lansia di rumah.",
       tasks: [
         "Membantu mobilitas (berjalan, pindah kursi roda).",
@@ -38,7 +38,7 @@ export default function Services() {
     {
       id: "babysitter",
       title: "Baby Sitter & Nanny",
-      image: "/3.png", // Foto dari folder public
+      image: "/3.png",
       description: "Pengasuh anak yang sabar dan telaten. Membantu tumbuh kembang anak dari bayi baru lahir (newborn) hingga balita.",
       tasks: [
         "Memandikan dan merawat kebersihan bayi/anak.",
@@ -52,7 +52,7 @@ export default function Services() {
     }
   ];
 
-  // Data FAQ Khusus Layanan
+  // Data statis untuk FAQ di halaman layanan.
   const serviceFaq = [
     { q: "Apakah gaji di atas sudah termasuk uang makan?", a: "Umumnya gaji tersebut adalah gaji bersih (net). Majikan menanggung makan 3x sehari dan perlengkapan mandi standar. Namun bisa berbeda tengantung kesepakatan diawal." },
     { q: "Bagaimana sistem kontrak kerjanya?", a: "Untuk JABODETABEK, kami menerapkan sistem garansi 3 bulan, 3x pergantian. Pekerja bisa berkerja sebetahnya. Untuk luar kota menggunakan sistem kontrak dengan jangka waktu sesuai kesepakatan (biasanya 1 tahun). Hal ini untuk menjamin keamanan kedua belah pihak" },

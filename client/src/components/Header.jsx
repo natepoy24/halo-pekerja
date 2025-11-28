@@ -7,16 +7,14 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    // Navbar Utama
     <nav className="bg-white shadow-sm sticky top-0 z-40 w-full bg-opacity-95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           
-          {/* --- BAGIAN KIRI (LOGO & JUDUL) --- */}
+          {/* Bagian Kiri: Logo dan Judul Situs */}
           <div className="flex-shrink-0 flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2 text-purple-700 group">
               <div className="w-10 h-10 transition-transform group-hover:scale-105">
-                  {/* Pastikan file logo ada di public/new-favicon.png */}
                   <img src="/new-favicon.png" alt="Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
@@ -30,7 +28,7 @@ export default function Header() {
             </Link>
           </div>
           
-          {/* --- BAGIAN KANAN (DESKTOP MENU) --- */}
+          {/* Bagian Kanan: Menu Navigasi Desktop */}
           <div className="hidden md:flex items-center gap-5">
             <Link to="/" className={`text-sm font-medium transition-colors ${location.pathname === '/' ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Beranda</Link>
             <Link to="/tentang-kami" className={`text-sm font-medium transition-colors ${location.pathname === '/tentang-kami' ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Tentang Kami</Link>
@@ -40,13 +38,12 @@ export default function Header() {
             <Link to="/blog" className={`text-sm font-medium transition-colors ${location.pathname.startsWith('/blog') ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Blog</Link>
             <Link to="/kontak" className={`text-sm font-medium transition-colors ${location.pathname === '/kontak' ? 'text-purple-700 font-bold' : 'text-slate-600 hover:text-purple-700'}`}>Kontak</Link>
             
-            {/* Tombol Login */}
             <Link to="/login" className="ml-2 px-5 py-2 text-sm font-semibold text-purple-700 border border-purple-200 rounded-full hover:bg-purple-600 hover:text-white transition-all shadow-sm">
               Masuk Admin
             </Link>
           </div>
 
-          {/* --- TOMBOL HAMBURGER (MOBILE) --- */}
+          {/* Tombol Hamburger untuk Tampilan Mobile */}
           <div className="flex md:hidden">
             <button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-600 hover:text-purple-700 transition-colors" aria-label="Buka Menu">
               <Menu size={26} />
@@ -55,11 +52,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* --- MOBILE MENU (DRAWER DARI KANAN) --- */}
-      {/* Kita gunakan z-50 agar menu muncul DI ATAS navbar */}
+      {/* Menu Mobile (Drawer) */}
       <div className={`fixed inset-0 z-50 md:hidden ${isMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
         
-        {/* 1. Overlay Hitam (Latar Belakang Gelap) */}
+        {/* Latar belakang overlay gelap */}
         <div 
           className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${
             isMenuOpen ? 'opacity-100' : 'opacity-0'
@@ -67,14 +63,13 @@ export default function Header() {
           onClick={() => setIsMenuOpen(false)}
         />
 
-        {/* 2. Panel Menu Putih (Muncul dari KANAN) */}
-        {/* PERBAIKAN: Menggunakan h-screen agar tingginya full layar */}
+        {/* Panel menu yang muncul dari kanan */}
         <div 
-          className={`absolute top-0 right-0 w-[80%] max-w-sm h-screen bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${
+          className={`absolute top-0 right-0 w-[80%] max-w-sm h-screen bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${ // 'h-screen' untuk tinggi penuh
             isMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
-          {/* Header Menu Mobile */}
+          {/* Header pada menu mobile */}
           <div className="flex justify-between items-center p-5 border-b border-slate-100 bg-white">
             <span className="font-bold text-lg text-purple-700">Menu Utama</span>
             <button onClick={() => setIsMenuOpen(false)} className="p-2 text-slate-500 hover:text-red-500 hover:bg-slate-100 rounded-full transition-colors">
@@ -82,7 +77,7 @@ export default function Header() {
             </button>
           </div>
           
-          {/* Daftar Link */}
+          {/* Daftar link navigasi mobile */}
           <div className="flex-1 overflow-y-auto p-6 bg-white">
             <div className="flex flex-col gap-4">
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-700 hover:text-purple-700 py-2 border-b border-slate-50 flex justify-between items-center">

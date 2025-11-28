@@ -5,28 +5,26 @@ import { useNavigate, Link } from "react-router-dom";
 import { Plus, Users, MapPin, Briefcase, Edit, LogOut, Menu, Trash2, LayoutDashboard, Shield, FileText } from "lucide-react";
 import AddPekerjaForm from "../components/AddPekerjaForm";
 import EditPekerjaForm from "../components/EditPekerjaForm";
-import AdminManagement from "../components/AdminManagement"; // Import komponen baru
-import ArticleForm from "../components/ArticleForm"; // Form tambah artikel
-import EditArticleForm from "../components/EditArticleForm"; // Form edit artikel
+import AdminManagement from "../components/AdminManagement";
+import ArticleForm from "../components/ArticleForm";
+import EditArticleForm from "../components/EditArticleForm";
 
 export default function Dashboard() {
-  const [view, setView] = useState("list"); // 'list', 'add', 'edit', 'users', 'list-articles', 'add-article', 'edit-article'
+  const [view, setView] = useState("list");
   const [workers, setWorkers] = useState([]);
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // STATE ROLE
+  // State untuk data pengguna yang login
   const [userRole, setUserRole] = useState("");
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
-  // State untuk Artikel
+  // State untuk manajemen artikel
   const [articles, setArticles] = useState([]);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
   const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
-
-  // --- FUNGSI AMBIL DATA ---
   const fetchWorkers = async () => {
     setIsLoading(true);
     try {
@@ -54,32 +52,29 @@ export default function Dashboard() {
   useEffect(() => {
     fetchWorkers();
     fetchArticles();
-    // AMBIL ROLE DARI LOCALSTORAGE
     const role = localStorage.getItem("adminRole");
     const name = localStorage.getItem("adminName");
     setUserRole(role);
     setUserName(name);
   }, []);
 
-  // --- FUNGSI NAVIGASI ---
+  // Handler untuk navigasi antar view di dashboard
   const handleEditClick = (id) => {
     setSelectedWorkerId(id);
     setView("edit");
   };
 
   const handleEditArticleClick = (id) => {
-    setSelectedArticleId(id);
-    setView("edit-article");
+    navigate(`/admin/edit-article/${id}`);
   };
 
   const handleSuccess = () => {
     setView("list");
     setView("list-articles");
-    fetchWorkers(); // Refresh data setelah tambah/edit
+    fetchWorkers();
     fetchArticles();
   };
 
-  // --- FUNGSI HAPUS DATA ---
   const handleDeleteClick = async (id, nama) => {
     if (window.confirm(`Yakin ingin menghapus data "${nama}"?`)) {
         try {
@@ -95,7 +90,6 @@ export default function Dashboard() {
   const handleArticleDeleteClick = async (id, title) => {
     if (window.confirm(`Yakin ingin menghapus artikel "${title}"?`)) {
         try {
-            // Asumsi server sudah bisa handle delete image juga
             await axios.delete(`${API_URL}/api/articles/${id}`);
             toast.success("Artikel berhasil dihapus");
             fetchArticles(); // Refresh data
@@ -110,8 +104,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-100 flex font-sans">
       <Toaster position="top-center" />
 
-      {/* --- SIDEBAR (MENU KIRI) --- */}
-      {/* --- SIDEBAR --- */}
+      {/* Sidebar Navigasi */}
       <aside className={`bg-slate-900 text-white transition-all duration-300 ${sidebarOpen ? "w-64" : "w-20"} flex flex-col fixed h-full z-20`}>
         <div className="p-6 flex items-center justify-between bg-slate-950">
             {sidebarOpen ? (
@@ -123,7 +116,6 @@ export default function Dashboard() {
 
         <nav className="flex-1 py-6 px-3 space-y-2">
             <p className={`px-4 text-xs text-slate-500 font-semibold tracking-wider ${sidebarOpen ? 'block' : 'hidden'}`}>PEKERJA</p>
-            {/* Menu Data Pekerja */}
             <button 
                 onClick={() => setView("list")}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${view === 'list' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
@@ -160,7 +152,7 @@ export default function Dashboard() {
             </button>
 
 
-            {/* MENU KHUSUS SUPERADMIN */}
+            {/* Menu khusus untuk Superadmin */}
             {userRole === 'superadmin' && (
                 <>
                     <div className="my-4 border-t border-slate-800"></div>
@@ -188,10 +180,9 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* --- KONTEN KANAN --- */}
+      {/* Konten Utama */}
       <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-20"}`}>
         
-        {/* Topbar */}
         <header className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10">
             <div className="flex items-center gap-4">
                 <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600">
@@ -216,10 +207,9 @@ export default function Dashboard() {
             </div>
         </header>
 
-        {/* Isi Halaman */}
         <main className="p-8">
             
-            {/* VIEW 1: LIST PEKERJA */}
+            {/* Tampilan: Daftar Pekerja */}
             {view === "list" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {isLoading ? (
@@ -233,7 +223,6 @@ export default function Dashboard() {
                             workers.map((worker) => (
                                 <div key={worker.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition group">
                                     
-                                    {/* FOTO 4:3 (Tampilan Penuh) */}
                                     <div className="aspect-[4/3] bg-slate-200 relative overflow-hidden">
                                         {worker.photo_url ? (
                                             <img 
@@ -249,7 +238,6 @@ export default function Dashboard() {
                                         </span>
                                     </div>
 
-                                    {/* Detail Data */}
                                     <div className="p-4">
                                         <h3 className="font-bold text-slate-800 text-lg">{worker.name}</h3>
                                         <p className="text-sm text-purple-600 mb-3 font-medium">{worker.category}</p>
@@ -263,7 +251,6 @@ export default function Dashboard() {
                                             </div>
                                         </div>
 
-                                        {/* TOMBOL AKSI (EDIT & DELETE) */}
                                         <div className="flex gap-2">
                                             <button 
                                                 onClick={() => handleEditClick(worker.id)}
@@ -287,7 +274,7 @@ export default function Dashboard() {
                     </div>
             )}
 
-            {/* VIEW ADD */}
+            {/* Tampilan: Tambah Pekerja */}
             {view === "add" && (
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <button onClick={() => setView("list")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
@@ -297,7 +284,7 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* VIEW 2: EDIT PEKERJA */}
+            {/* Tampilan: Edit Pekerja */}
             {view === "edit" && (
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <button onClick={() => setView("list")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
@@ -307,12 +294,12 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* VIEW 3: MANAJEMEN USER (SUPERADMIN) */}
+            {/* Tampilan: Manajemen User (Superadmin) */}
             {view === "users" && userRole === 'superadmin' && (
                 <AdminManagement />
             )}
 
-            {/* VIEW 4: LIST ARTIKEL */}
+            {/* Tampilan: Daftar Artikel */}
             {view === "list-articles" && (
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <h2 className="text-xl font-bold text-slate-800 mb-4">Daftar Artikel</h2>
@@ -345,20 +332,9 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* VIEW 5: TAMBAH ARTIKEL */}
+            {/* Tampilan: Tambah Artikel */}
             {view === "add-article" && (
                 <ArticleForm onSuccess={() => { setView("list-articles"); fetchArticles(); }} />
-            )}
-
-            {/* VIEW 6: EDIT ARTIKEL */}
-            {view === "edit-article" && (
-                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <button onClick={() => setView("list-articles")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
-                        &larr; Kembali ke List Artikel
-                    </button>
-                    {/* Menggunakan komponen EditArticleForm yang sudah ada */}
-                    <EditArticleForm key={selectedArticleId} />
-                 </div>
             )}
 
         </main>

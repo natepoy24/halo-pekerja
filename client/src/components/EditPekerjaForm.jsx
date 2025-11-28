@@ -9,15 +9,14 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
   const [previewFoto, setPreviewFoto] = useState(null);
   const fileInputRef = useRef(null);
   
-  // --- DEFINISI BAHASA STANDAR (PENTING UNTUK FILTER) ---
+  // Daftar bahasa standar untuk checkbox.
   const STANDARD_LANGUAGES = ['Inggris', 'Mandarin', 'Arab', 'Hokkian', 'Melayu'];
 
-  // State UI Khusus
+  // State untuk mengelola UI dinamis (bahasa & suku).
   const [bahasaLainChecked, setBahasaLainChecked] = useState(false);
   const [bahasaLainInput, setBahasaLainInput] = useState("");
   const [sukuSelect, setSukuSelect] = useState("");
 
-  // State Data Utama
   const [formData, setFormData] = useState({
     nama: "", umur: 18, category: "Asisten Rumah Tangga", status: "Tersedia",
     pengalaman: 0, gaji: 0, lokasi: "", suku: "", status_perkawinan: "Belum Menikah",
@@ -26,7 +25,6 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
     keterampilan: "", kekurangan: "", deskripsi: "", fotoUrl: null
   });
 
-  // --- 1. AMBIL DATA & PISAHKAN LOGIKA BAHASA ---
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,12 +32,11 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
         const response = await axios.get(`https://api.halopekerja.com/api/workers/${idToFetch}`);
         const data = response.data;
 
-        // --- LOGIKA PERBAIKAN BAHASA ---
+        // Logika untuk memisahkan bahasa standar dan bahasa lainnya dari database.
         let standardLangs = [];
         let customLangs = [];
 
         if (data.languages) {
-            // Pecah string dari database: "Inggris, Mandarin, Korea" -> Array
             const allLangs = data.languages.split(',').map(l => l.trim());
             
             allLangs.forEach(lang => {
@@ -51,14 +48,12 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
             });
         }
 
-        // Set checkbox "Lainnya" aktif jika ada bahasa custom
         if (customLangs.length > 0) {
             setBahasaLainChecked(true);
-            setBahasaLainInput(customLangs.join(', ')); // Tampilkan di input teks
+            setBahasaLainInput(customLangs.join(', '));
         }
-        // -------------------------------
 
-        // Logika Suku
+        // Logika untuk menentukan nilai dropdown suku.
         const standardSuku = ["Jawa", "Sunda", "Batak", "Madura"];
         let sukuDropdown = "Lainnya";
         if (standardSuku.includes(data.tribe)) {
@@ -67,7 +62,6 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
             sukuDropdown = "";
         }
 
-        // Set State
         setFormData({
             nama: data.name,
             umur: data.age,
@@ -79,8 +73,8 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
             suku: data.tribe,
             status_perkawinan: data.marital_status,
             agama: data.religion,
-            pendidikan: data.education || "SD", // <-- Ambil data pendidikan
-            bahasa_asing: standardLangs, // Hanya masukkan yang standar ke state array
+            pendidikan: data.education || "SD",
+            bahasa_asing: standardLangs,
             keterampilan: data.skills,
             kekurangan: data.shortcomings,
             deskripsi: data.description,
@@ -130,21 +124,18 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
   const handleCheckboxChange = (e) => {
     const { value, checked } = e.target;
     
-    // Jika checkbox "Lainnya" diklik
     if (value === "Lainnya") {
         setBahasaLainChecked(checked);
-        if (!checked) setBahasaLainInput(""); // Hapus teks jika di-uncheck
+        if (!checked) setBahasaLainInput("");
         return;
     }
 
-    // Jika checkbox bahasa standar diklik
     let updatedBahasa = [...formData.bahasa_asing];
     if (checked) updatedBahasa.push(value);
     else updatedBahasa = updatedBahasa.filter((lang) => lang !== value);
     setFormData({ ...formData, bahasa_asing: updatedBahasa });
   };
 
-  // --- 2. GABUNGKAN DATA SAAT SUBMIT ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -152,16 +143,14 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
     const dataToSend = new FormData();
     Object.keys(formData).forEach(key => {
       if (key === 'bahasa_asing') {
-        // Gabungkan array standard + input manual menjadi satu string
+        // Gabungkan bahasa standar dan bahasa lainnya menjadi satu string.
         let finalLanguages = [...formData.bahasa_asing];
         
         if (bahasaLainChecked && bahasaLainInput.trim() !== "") {
-            // Bersihkan spasi berlebih dan koma ganda dari input manual
             const manualLangs = bahasaLainInput.split(',').map(s => s.trim()).filter(s => s !== "");
             finalLanguages = [...finalLanguages, ...manualLangs];
         }
         
-        // Hapus duplikat (Set) lalu gabung jadi string
         const uniqueLangs = [...new Set(finalLanguages)];
         dataToSend.append(key, uniqueLangs.join(', '));
 
@@ -173,7 +162,6 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
     });
 
     try {
-      // PERBAIKAN DI SINI: Gunakan workerId dari props, atau fallback ke 1
       const idToUpdate = workerId || 1;
       
       await axios.put(`https://api.halopekerja.com/api/workers/${idToUpdate}`, dataToSend, {
@@ -215,7 +203,6 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* Input Nama, Umur, dll */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
               <input type="text" name="nama" value={formData.nama} onChange={handleChange} required className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" />
@@ -271,7 +258,6 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
               )}
             </div>
 
-            {/* --- UPDATE: Status, Agama & PENDIDIKAN --- */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">Status Perkawinan</label>
               <select name="status_perkawinan" value={formData.status_perkawinan} onChange={handleChange} className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white outline-none">
@@ -316,7 +302,6 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
               </div>
             </div>
 
-            {/* --- PERBAIKAN LOGIKA UI BAHASA --- */}
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-slate-700 mb-2">Kemampuan Bahasa Asing</label>
               <div className="flex flex-wrap gap-4">
@@ -325,7 +310,7 @@ export default function EditPekerjaForm({ workerId, onCancel, onSuccess }) {
                     <input 
                         type="checkbox" 
                         value={lang} 
-                        checked={formData.bahasa_asing.includes(lang)} // Cek apakah ada di state array
+                        checked={formData.bahasa_asing.includes(lang)}
                         onChange={handleCheckboxChange} 
                         className="accent-purple-600 w-4 h-4" 
                     />
