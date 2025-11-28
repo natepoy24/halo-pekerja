@@ -11,7 +11,6 @@ import WorkerDetail from "./pages/WorkerDetail";
 import PublicLayout from "./components/PublicLayout";
 import BlogList from "./pages/BlogList";
 import BlogDetail from "./pages/BlogDetail";
-import EditArticlePage from "./pages/admin/EditArticlePage";
 
 // Komponen untuk melindungi rute yang memerlukan otentikasi.
 const ProtectedRoute = ({ children }) => {
@@ -51,15 +50,6 @@ function App() {
                 <Dashboard />
               </ProtectedRoute>
             } 
-          />
-          {/* Rute untuk halaman edit artikel. */}
-          <Route 
-            path="/admin/edit-article/:id" 
-            element={
-              <ProtectedRoute>
-                <EditArticlePage />
-              </ProtectedRoute>
-            }
           />
         </Routes>
       </BrowserRouter>

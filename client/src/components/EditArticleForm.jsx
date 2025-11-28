@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+import { Save, Loader2 } from 'lucide-react';
 
-const EditArticleForm = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
     const [article, setArticle] = useState({
         title: '',
         content: '',
@@ -13,21 +12,18 @@ const EditArticleForm = () => {
     });
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     const API_URL = process.env.REACT_APP_API_URL || 'https://api.halopekerja.com';
 
     useEffect(() => {
         const fetchArticle = async () => {
+            setIsFetching(true);
             try {
-                // We need a route to get an article by ID for editing.
-                // Let's assume we will add a GET /api/articles/id/:id route on the server.
-                // For now, let's fetch all and find by ID. This is inefficient but works without server changes.
-                // A better approach is to add a dedicated GET /api/articles/id/:id endpoint.
                 const response = await axios.get(`${API_URL}/api/articles`);
-                const articleToEdit = response.data.find(art => art.id === parseInt(id));
+                const articleToEdit = response.data.find(art => art.id === parseInt(articleId));
 
                 if (articleToEdit) {
                     setArticle({
@@ -46,12 +42,12 @@ const EditArticleForm = () => {
                 setError('Gagal memuat data artikel.');
                 console.error(err);
             } finally {
-                setLoading(false);
+                setIsFetching(false);
             }
         };
 
         fetchArticle();
-    }, [id, API_URL]);
+    }, [articleId, API_URL]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -71,8 +67,7 @@ const EditArticleForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
+        setIsLoading(true);
 
         const formData = new FormData();
         formData.append('title', article.title);
@@ -85,67 +80,65 @@ const EditArticleForm = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/api/articles/${id}`, formData, {
+            await axios.put(`${API_URL}/api/articles/${articleId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setSuccess('Artikel berhasil diperbarui!');
-            setTimeout(() => navigate('/admin/blog'), 2000); // Redirect after 2 seconds
+            toast.success('Artikel berhasil diperbarui!');
+            if (onSuccess) onSuccess();
         } catch (err) {
-            setError(err.response?.data?.message || 'Gagal memperbarui artikel.');
+            toast.error(err.response?.data?.message || 'Gagal memperbarui artikel.');
             console.error(err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    if (loading) {
-        return <div className="admin-container">Memuat data artikel...</div>;
+    if (isFetching) {
+        return <div className="text-center p-10">Memuat data artikel...</div>;
     }
 
     return (
-        <div className="admin-container">
-            <div className="admin-header">
-                <h2>Edit Artikel</h2>
-                <button onClick={() => navigate('/admin/blog')} className="btn btn-secondary">Kembali</button>
-            </div>
+        <div>
+            <Toaster position="top-center" />
+            <h2 className="text-xl font-bold mb-4 text-slate-800">Edit Artikel</h2>
 
             {error && <div className="alert alert-danger">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
 
-            <form onSubmit={handleSubmit} className="admin-form">
-                <div className="form-group">
-                    <label htmlFor="title">Judul Artikel</label>
-                    <input type="text" id="title" name="title" value={article.title} onChange={handleChange} required />
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-bold text-slate-700">Judul Artikel</label>
+                    <input type="text" name="title" value={article.title} onChange={handleChange} required className="w-full p-2 border rounded" />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="content">Isi Konten</label>
-                    <textarea id="content" name="content" value={article.content} onChange={handleChange} rows="10" required></textarea>
+                <div>
+                    <label className="block text-sm font-bold text-slate-700">Isi Konten</label>
+                    <textarea name="content" value={article.content} onChange={handleChange} rows="10" required className="w-full p-2 border rounded" />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="image">Gambar Unggulan (Kosongkan jika tidak ingin ganti)</label>
-                    <input type="file" id="image" name="image" onChange={handleImageChange} accept="image/*" />
-                    {preview && <img src={preview} alt="Preview" className="image-preview" />}
+                <div>
+                    <label className="block text-sm font-bold text-slate-700">Gambar Unggulan (Kosongkan jika tidak ingin ganti)</label>
+                    <input type="file" name="image" onChange={handleImageChange} accept="image/*" className="w-full text-sm text-slate-500" />
+                    {preview && <img src={preview} alt="Preview" className="mt-4 w-48 h-auto rounded-lg" />}
                 </div>
 
-                <hr />
-                <h4>Pengaturan SEO (Opsional)</h4>
-
-                <div className="form-group">
-                    <label htmlFor="meta_title">Meta Title</label>
-                    <input type="text" id="meta_title" name="meta_title" value={article.meta_title} onChange={handleChange} />
-                    <small>Judul yang akan tampil di tab browser dan hasil pencarian Google.</small>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 space-y-3">
+                    <h3 className="font-bold text-blue-800 text-sm">Pengaturan SEO (Opsional)</h3>
+                    <div>
+                        <label className="block text-xs font-bold text-blue-700">Meta Title</label>
+                        <input type="text" name="meta_title" value={article.meta_title} onChange={handleChange} className="w-full p-2 border rounded text-sm" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-blue-700">Meta Description</label>
+                        <textarea name="meta_description" value={article.meta_description} onChange={handleChange} rows="2" className="w-full p-2 border rounded text-sm" />
+                    </div>
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="meta_description">Meta Description</label>
-                    <textarea id="meta_description" name="meta_description" value={article.meta_description} onChange={handleChange} rows="3"></textarea>
-                    <small>Deskripsi singkat (max 160 karakter) untuk hasil pencarian Google.</small>
-                </div>
-
-                <button type="submit" className="btn btn-primary">Simpan Perubahan</button>
+                <button type="submit" disabled={isLoading} className="bg-purple-600 text-white px-6 py-2 rounded font-bold flex items-center gap-2 hover:bg-purple-700 disabled:opacity-50">
+                    {isLoading ? <Loader2 className="animate-spin"/> : <Save size={18} />} Simpan Perubahan
+                </button>
             </form>
         </div>
     );

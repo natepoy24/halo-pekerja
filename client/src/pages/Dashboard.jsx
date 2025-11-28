@@ -65,14 +65,16 @@ export default function Dashboard() {
   };
 
   const handleEditArticleClick = (id) => {
-    navigate(`/admin/edit-article/${id}`);
+    setSelectedArticleId(id);
+    setView("edit-article");
   };
 
   const handleSuccess = () => {
     setView("list");
-    setView("list-articles");
     fetchWorkers();
-    fetchArticles();
+    // Buat fungsi sukses terpisah untuk artikel agar kembali ke list artikel
+    setView("list-articles"); 
+    fetchArticles(); 
   };
 
   const handleDeleteClick = async (id, nama) => {
@@ -335,6 +337,16 @@ export default function Dashboard() {
             {/* Tampilan: Tambah Artikel */}
             {view === "add-article" && (
                 <ArticleForm onSuccess={() => { setView("list-articles"); fetchArticles(); }} />
+            )}
+
+            {/* Tampilan: Edit Artikel (seperti edit pekerja) */}
+            {view === "edit-article" && (
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <button onClick={() => setView("list-articles")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
+                        &larr; Kembali ke List Artikel
+                    </button>
+                    <EditArticleForm articleId={selectedArticleId} onCancel={() => setView("list-articles")} onSuccess={handleSuccess} />
+                 </div>
             )}
 
         </main>
