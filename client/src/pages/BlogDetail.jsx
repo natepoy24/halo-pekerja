@@ -7,7 +7,7 @@ export default function BlogDetail() {
   const { slug } = useParams();
   const [article, setArticle] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
+  const API_URL = 'https://api.halopekerja.com';
 
   useEffect(() => {
     axios.get(`${API_URL}/api/articles/${slug}`).then(res => setArticle(res.data));

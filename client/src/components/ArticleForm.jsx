@@ -9,7 +9,7 @@ export default function ArticleForm({ onSuccess }) {
     title: "", content: "", meta_title: "", meta_description: "", image: null, image_alt: ""
   });
 
-  const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
+  const API_URL = 'https://api.halopekerja.com';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +19,7 @@ export default function ArticleForm({ onSuccess }) {
 
     try {
       // Ganti URL sesuai domain API kamu nanti
-      await axios.post(`${API_URL}/articles`, data, {
+      await axios.post(`${API_URL}/api/articles`, data, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       toast.success("Artikel berhasil diterbitkan!");

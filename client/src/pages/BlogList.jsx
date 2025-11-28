@@ -6,7 +6,7 @@ import { Helmet } from "react-helmet-async";
 export default function BlogList() {
   const [articles, setArticles] = useState([]);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
+  const API_URL = 'https://api.halopekerja.com';
 
   useEffect(() => {
     axios.get(`${API_URL}/api/articles`).then(res => setArticles(res.data));

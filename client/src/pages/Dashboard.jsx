@@ -24,7 +24,7 @@ export default function Dashboard() {
   // State untuk manajemen artikel
   const [articles, setArticles] = useState([]);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
-  const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
+  const API_URL = 'https://api.halopekerja.com';
   const fetchWorkers = async () => {
     setIsLoading(true);
     try {
@@ -40,7 +40,7 @@ export default function Dashboard() {
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/articles`);
+      const response = await axios.get(`${API_URL}/api/articles`);
       setArticles(response.data);
     } catch (error) {
       console.error("Gagal ambil data artikel:", error);
@@ -95,7 +95,7 @@ export default function Dashboard() {
   const handleArticleDeleteClick = async (id, title) => {
     if (window.confirm(`Yakin ingin menghapus artikel "${title}"?`)) {
         try {
-            await axios.delete(`${API_URL}/articles/${id}`);
+            await axios.delete(`${API_URL}/api/articles/${id}`);
             toast.success("Artikel berhasil dihapus");
             fetchArticles(); // Refresh data
         } catch (error) {

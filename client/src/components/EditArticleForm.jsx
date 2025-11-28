@@ -17,13 +17,13 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState('');
 
-    const API_URL = import.meta.env.VITE_API_URL || 'https://api.halopekerja.com';
+    const API_URL = 'https://api.halopekerja.com';
 
     useEffect(() => {
         const fetchArticle = async () => {
             setIsFetching(true);
             try {
-                const response = await axios.get(`${API_URL}/articles`);
+                const response = await axios.get(`${API_URL}/api/articles`);
                 const articleToEdit = response.data.find(art => art.id === parseInt(articleId));
 
                 if (articleToEdit) {
@@ -83,7 +83,7 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/articles/${articleId}`, formData, {
+            await axios.put(`${API_URL}/api/articles/${articleId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
@@ -144,9 +144,14 @@ const EditArticleForm = ({ articleId, onCancel, onSuccess }) => {
                     </div>
                 </div>
 
-                <button type="submit" disabled={isLoading} className="bg-purple-600 text-white px-6 py-2 rounded font-bold flex items-center gap-2 hover:bg-purple-700 disabled:opacity-50">
-                    {isLoading ? <Loader2 className="animate-spin"/> : <Save size={18} />} Simpan Perubahan
-                </button>
+                <div className="flex items-center gap-4">
+                    <button type="submit" disabled={isLoading} className="bg-purple-600 text-white px-6 py-2 rounded font-bold flex items-center gap-2 hover:bg-purple-700 disabled:opacity-50">
+                        {isLoading ? <Loader2 className="animate-spin"/> : <Save size={18} />} Simpan Perubahan
+                    </button>
+                    {onCancel && (
+                        <button type="button" onClick={onCancel} className="text-slate-600 text-sm font-medium hover:text-purple-600">Batal</button>
+                    )}
+                </div>
             </form>
         </div>
     );

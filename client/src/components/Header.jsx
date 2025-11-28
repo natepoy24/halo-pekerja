@@ -6,6 +6,16 @@ export default function Header() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const handleKatalogClick = (e) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      const katalogElement = document.getElementById('katalog');
+      if (katalogElement) {
+        katalogElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-40 w-full bg-opacity-95 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
