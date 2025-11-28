@@ -11,6 +11,7 @@ import WorkerDetail from "./pages/WorkerDetail";
 import PublicLayout from "./components/PublicLayout";
 import BlogList from "./pages/BlogList";
 import BlogDetail from "./pages/BlogDetail";
+import EditArticlePage from "./pages/EditArticlePage"; // Halaman khusus edit artikel
 
 // Komponen Satpam (Protected Route)
 // Tugasnya ngecek: "Ada token gak?"
@@ -53,6 +54,15 @@ function App() {
                 <Dashboard />
               </ProtectedRoute>
             } 
+          />
+          {/* Rute untuk Edit Artikel */}
+          <Route 
+            path="/admin/edit-article/:id" 
+            element={
+              <ProtectedRoute>
+                <EditArticlePage />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </BrowserRouter>

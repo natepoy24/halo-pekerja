@@ -1,15 +1,16 @@
     import { useState, useEffect } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-// IMPORT ICON BARU: Shield (untuk Admin)
-import { Plus, Users, MapPin, Briefcase, Edit, LogOut, Menu, Trash2, LayoutDashboard, Shield } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Plus, Users, MapPin, Briefcase, Edit, LogOut, Menu, Trash2, LayoutDashboard, Shield, FileText } from "lucide-react";
 import AddPekerjaForm from "../components/AddPekerjaForm";
 import EditPekerjaForm from "../components/EditPekerjaForm";
 import AdminManagement from "../components/AdminManagement"; // Import komponen baru
+import ArticleForm from "../components/ArticleForm"; // Form tambah artikel
+import EditArticleForm from "../components/EditArticleForm"; // Form edit artikel
 
 export default function Dashboard() {
-  const [view, setView] = useState("list"); // 'list', 'add', 'edit', 'users'
+  const [view, setView] = useState("list"); // 'list', 'add', 'edit', 'users', 'list-articles', 'add-article', 'edit-article'
   const [workers, setWorkers] = useState([]);
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +20,11 @@ export default function Dashboard() {
   const [userRole, setUserRole] = useState("");
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
+
+  // State untuk Artikel
+  const [articles, setArticles] = useState([]);
+  const [selectedArticleId, setSelectedArticleId] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   // --- FUNGSI AMBIL DATA ---
   const fetchWorkers = async () => {
@@ -33,8 +39,21 @@ export default function Dashboard() {
     }
   };
 
+  const fetchArticles = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/articles`);
+      setArticles(response.data);
+    } catch (error) {
+      console.error("Gagal ambil data artikel:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchWorkers();
+    fetchArticles();
     // AMBIL ROLE DARI LOCALSTORAGE
     const role = localStorage.getItem("adminRole");
     const name = localStorage.getItem("adminName");
@@ -48,9 +67,16 @@ export default function Dashboard() {
     setView("edit");
   };
 
+  const handleEditArticleClick = (id) => {
+    setSelectedArticleId(id);
+    setView("edit-article");
+  };
+
   const handleSuccess = () => {
     setView("list");
+    setView("list-articles");
     fetchWorkers(); // Refresh data setelah tambah/edit
+    fetchArticles();
   };
 
   // --- FUNGSI HAPUS DATA ---
@@ -62,6 +88,20 @@ export default function Dashboard() {
             fetchWorkers(); // Refresh data
         } catch (error) {
             toast.error("Gagal menghapus data");
+        }
+    }
+  };
+
+  const handleArticleDeleteClick = async (id, title) => {
+    if (window.confirm(`Yakin ingin menghapus artikel "${title}"?`)) {
+        try {
+            // Asumsi server sudah bisa handle delete image juga
+            await axios.delete(`${API_URL}/api/articles/${id}`);
+            toast.success("Artikel berhasil dihapus");
+            fetchArticles(); // Refresh data
+        } catch (error) {
+            toast.error("Gagal menghapus artikel");
+            console.error(error);
         }
     }
   };
@@ -82,6 +122,7 @@ export default function Dashboard() {
         </div>
 
         <nav className="flex-1 py-6 px-3 space-y-2">
+            <p className={`px-4 text-xs text-slate-500 font-semibold tracking-wider ${sidebarOpen ? 'block' : 'hidden'}`}>PEKERJA</p>
             {/* Menu Data Pekerja */}
             <button 
                 onClick={() => setView("list")}
@@ -98,6 +139,26 @@ export default function Dashboard() {
                 <Plus size={20} />
                 {sidebarOpen && <span>Tambah Pekerja</span>}
             </button>
+
+            <div className="my-4 border-t border-slate-800"></div>
+            <p className={`px-4 text-xs text-slate-500 font-semibold tracking-wider ${sidebarOpen ? 'block' : 'hidden'}`}>ARTIKEL</p>
+
+            <button 
+                onClick={() => setView("list-articles")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${view === 'list-articles' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+            >
+                <FileText size={20} />
+                {sidebarOpen && <span>Data Artikel</span>}
+            </button>
+
+            <button 
+                onClick={() => setView("add-article")}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${view === 'add-article' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+            >
+                <Plus size={20} />
+                {sidebarOpen && <span>Tambah Artikel</span>}
+            </button>
+
 
             {/* MENU KHUSUS SUPERADMIN */}
             {userRole === 'superadmin' && (
@@ -139,6 +200,9 @@ export default function Dashboard() {
                 <h2 className="text-lg font-semibold text-slate-800">
                     {view === 'list' && "Dashboard Pekerja"}
                     {view === 'users' && "Manajemen User & Admin"}
+                    {view === 'list-articles' && "Manajemen Artikel"}
+                    {view === 'add-article' && "Tulis Artikel Baru"}
+                    {view.startsWith('edit') && "Edit Konten"}
                 </h2>
             </div>
             <div className="flex items-center gap-3">
@@ -234,11 +298,67 @@ export default function Dashboard() {
             )}
 
             {/* VIEW 2: EDIT PEKERJA */}
-            {view === "edit" && <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200"><EditPekerjaForm workerId={selectedWorkerId} onCancel={() => setView("list")} onSuccess={handleSuccess} /></div>}
+            {view === "edit" && (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <button onClick={() => setView("list")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
+                        &larr; Kembali ke List Pekerja
+                    </button>
+                    <EditPekerjaForm workerId={selectedWorkerId} onCancel={() => setView("list")} onSuccess={handleSuccess} />
+                </div>
+            )}
 
             {/* VIEW 3: MANAJEMEN USER (SUPERADMIN) */}
             {view === "users" && userRole === 'superadmin' && (
                 <AdminManagement />
+            )}
+
+            {/* VIEW 4: LIST ARTIKEL */}
+            {view === "list-articles" && (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 className="text-xl font-bold text-slate-800 mb-4">Daftar Artikel</h2>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-100 text-slate-600 text-sm uppercase">
+                                    <th className="p-3 border-b">Judul</th>
+                                    <th className="p-3 border-b">Slug</th>
+                                    <th className="p-3 border-b">Tanggal</th>
+                                    <th className="p-3 border-b text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm text-slate-700">
+                                {articles.map((article) => (
+                                <tr key={article.id} className="border-b hover:bg-slate-50">
+                                    <td className="p-3 font-medium">{article.title}</td>
+                                    <td className="p-3 text-slate-500">/blog/{article.slug}</td>
+                                    <td className="p-3">{new Date(article.created_at).toLocaleDateString()}</td>
+                                    <td className="p-3 flex justify-center gap-2">
+                                        <button onClick={() => handleEditArticleClick(article.id)} className="p-1 text-blue-600 hover:bg-blue-50 rounded"><Edit size={18}/></button>
+                                        <button onClick={() => handleArticleDeleteClick(article.id, article.title)} className="p-1 text-red-600 hover:bg-red-50 rounded"><Trash2 size={18}/></button>
+                                        <Link to={`/blog/${article.slug}`} target="_blank" className="p-1 text-gray-400 hover:bg-gray-100 rounded" title="Lihat Halaman">🔗</Link>
+                                    </td>
+                                </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* VIEW 5: TAMBAH ARTIKEL */}
+            {view === "add-article" && (
+                <ArticleForm onSuccess={() => { setView("list-articles"); fetchArticles(); }} />
+            )}
+
+            {/* VIEW 6: EDIT ARTIKEL */}
+            {view === "edit-article" && (
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <button onClick={() => setView("list-articles")} className="mb-4 text-sm text-slate-500 hover:text-purple-600 flex items-center gap-1">
+                        &larr; Kembali ke List Artikel
+                    </button>
+                    {/* Menggunakan komponen EditArticleForm yang sudah ada */}
+                    <EditArticleForm key={selectedArticleId} />
+                 </div>
             )}
 
         </main>

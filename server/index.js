@@ -378,6 +378,45 @@ app.post('/api/articles', upload.single('image'), async (req, res) => {
     }
 });
 
+// 4. UPDATE ARTIKEL
+app.put('/api/articles/:id', upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, content, meta_title, meta_description } = req.body;
+        const file = req.file;
+
+        let sql = 'UPDATE articles SET title=?, content=?, meta_title=?, meta_description=?';
+        const values = [title, content, meta_title, meta_description];
+
+        // Jika ada file gambar baru yang diupload
+        if (file) {
+            // 1. Ambil nama file gambar lama dari DB
+            const [rows] = await db.query('SELECT image_url FROM articles WHERE id = ?', [id]);
+            if (rows.length > 0 && rows[0].image_url) {
+                const oldImagePath = path.join(__dirname, 'uploads', rows[0].image_url);
+                // 2. Hapus file gambar lama jika ada
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+
+            // 3. Tambahkan field image_url ke query update
+            sql += ', image_url=?';
+            values.push(file.filename);
+        }
+
+        sql += ' WHERE id=?';
+        values.push(id);
+
+        await db.query(sql, values);
+
+        res.json({ message: 'Artikel berhasil diperbarui!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal update artikel' });
+    }
+});
+
 // 4. HAPUS ARTIKEL
 app.delete('/api/articles/:id', async (req, res) => {
     try {

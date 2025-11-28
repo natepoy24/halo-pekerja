@@ -27,7 +27,7 @@ export default function BlogDetail() {
 
       <article className="max-w-3xl mx-auto">
         {article.image_url && (
-            <img src={`http://localhost:5000/uploads/${article.image_url}`} className="w-full h-auto rounded-xl shadow-lg mb-8" />
+            <img src={`https://halopekerja.com/uploads/${article.image_url}`} className="w-full h-auto rounded-xl shadow-lg mb-8" />
         )}
         <h1 className="text-4xl font-bold text-slate-900 mb-4">{article.title}</h1>
         <p className="text-slate-500 text-sm mb-8">Diterbitkan pada: {new Date(article.created_at).toLocaleDateString()}</p>

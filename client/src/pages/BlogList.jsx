@@ -23,7 +23,7 @@ export default function BlogList() {
             {articles.map(article => (
                 <Link to={`/blog/${article.slug}`} key={article.id} className="bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition">
                     <div className="h-48 bg-slate-200 overflow-hidden">
-                        {article.image_url && <img src={`http://localhost:5000/uploads/${article.image_url}`} className="w-full h-full object-cover"/>}
+                        {article.image_url && <img src={`https://halopekerja.com/uploads/${article.image_url}`} className="w-full h-full object-cover"/>}
                     </div>
                     <div className="p-6">
                         <h2 className="font-bold text-lg text-slate-800 mb-2">{article.title}</h2>

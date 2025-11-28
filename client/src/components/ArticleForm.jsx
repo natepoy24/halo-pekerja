@@ -17,7 +17,7 @@ export default function ArticleForm({ onSuccess }) {
 
     try {
       // Ganti URL sesuai domain API kamu nanti
-      await axios.post("http://localhost:5000/api/articles", data, {
+      await axios.post("https://halopekerja.com/api/articles", data, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       toast.success("Artikel berhasil diterbitkan!");
