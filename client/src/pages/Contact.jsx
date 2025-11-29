@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
-import usePageSeo from "../hooks/usePageSeo"; // Impor hook kustom
+import usePageSeo from "../hooks/usePageSeo"; // Import Hook
 
 export default function Contact() {
-  // Ambil data SEO khusus untuk halaman 'contact'
+  // PANGGIL DATA SEO KHUSUS HALAMAN 'contact'
   const seo = usePageSeo('contact');
 
   const handleSendMessage = (e) => {
@@ -11,7 +11,6 @@ export default function Contact() {
     const nama = e.target.nama.value;
     const pesan = e.target.pesan.value;
     
-    // Mengarahkan pengguna ke WhatsApp dengan pesan yang sudah terisi.
     const waLink = `https://wa.me/6285781823040?text=Halo admin, saya ${nama}. ${pesan}`;
     window.open(waLink, "_blank");
   };
@@ -19,15 +18,12 @@ export default function Contact() {
   return (
     <>
       <Helmet>
-        <title>{seo ? seo.meta_title : "Kontak Kami | Penyalur Pembantu Indonesia"}</title>
-        <meta name="description" content={seo ? seo.meta_description : "Hubungi kami untuk konsultasi gratis. Dapatkan informasi alamat, nomor WhatsApp, email, dan jam operasional Penyalur Pembantu Indonesia."} />
-        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
-        <meta property="og:title" content={seo ? seo.meta_title : "Kontak Kami | Penyalur Pembantu Indonesia"} />
-        <meta property="og:description" content={seo ? seo.meta_description : "Hubungi kami untuk konsultasi gratis. Dapatkan informasi alamat, nomor WhatsApp, email, dan jam operasional."} />
-        <meta property="og:image" content="/new-favicon.png" />
+        <title>{seo?.meta_title || "Kontak Kami | Penyalur Pembantu Indonesia"}</title>
+        <meta name="description" content={seo?.meta_description || "Hubungi kami untuk konsultasi kebutuhan tenaga kerja Anda."} />
+        <meta name="keywords" content={seo?.meta_keywords || "kontak penyalur, alamat p3rt jakarta, no wa penyalur"} />
       </Helmet>
 
-      {/* HEADER / HERO */}
+      {/* ... (SISA KODE TAMPILAN DI BAWAH TETAP SAMA) ... */}
       <div className="bg-purple-700 text-white py-16 text-center">
         <h1 className="text-4xl font-bold mb-2">Hubungi Kami</h1>
         <p className="text-purple-100 max-w-xl mx-auto">
@@ -38,7 +34,6 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-12">
           
-          {/* KOLOM KIRI: INFO KONTAK & PETA */}
           <div className="space-y-8">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Informasi Kantor</h2>
@@ -87,7 +82,6 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* EMBED GOOGLE MAPS */}
             <div className="rounded-2xl overflow-hidden shadow-lg h-64 border border-slate-200">
               <iframe 
                 title="Peta Lokasi"
@@ -102,7 +96,6 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* KOLOM KANAN: FORMULIR */}
           <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 h-fit">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Kirim Pesan</h2>
             <p className="text-slate-500 mb-6">Isi formulir di bawah ini, tim kami akan segera membalas via WhatsApp.</p>
@@ -144,7 +137,6 @@ export default function Contact() {
         </div>
       </div>
 
-      {/* SEO CONTENT SECTION */}
       <section className="bg-white py-16 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-slate-800 mb-4 text-center">Konsultasi Kebutuhan Tenaga Kerja Anda</h2>

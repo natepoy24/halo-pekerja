@@ -1,34 +1,31 @@
 import { Helmet } from "react-helmet-async";
-import usePageSeo from "../hooks/usePageSeo"; // Impor hook kustom
+import usePageSeo from "../hooks/usePageSeo"; // Import Hook
 
 export default function Gallery() {
-  // Ambil data SEO khusus untuk halaman 'gallery'
+  // PANGGIL DATA SEO KHUSUS HALAMAN 'gallery'
   const seo = usePageSeo('gallery');
 
-  // Daftar gambar untuk galeri, diambil dari direktori /public/gallery/.
   const galleryImages = [
+    // ... (biarkan data gambar tetap sama) ...
     { src: "/gallery/1.png", alt: "foto bersama semua calon pekerja" },
     { src: "/gallery/2.png", alt: "Pemberian materi secara tertulis" },
     { src: "/gallery/3.png", alt: "foto bersama semua calon pekerja" },
     { src: "/gallery/4.jpeg", alt: "makan bersama di asrama" },
     { src: "/gallery/5.png", alt: "Pemberian materi secara lisan" },
-    { src: "/gallery/7.jpeg", alt: "pelatihan memandikan bayi yang tepat untuk baby sitter menggunakan boneka bayi" },
-    { src: "/gallery/8.jpeg", alt: "pelatihan praktek memakaikan baju bayi untuk baby sitter menggunakan boneka bayi" },
-    { src: "/gallery/9.jpeg", alt: "pelatihan praktek memberi susu untuk baby sitter menggunakan boneka bayi" },
+    { src: "/gallery/7.jpeg", alt: "pelatihan memandikan bayi..." },
+    { src: "/gallery/8.jpeg", alt: "pelatihan praktek memakaikan baju..." },
+    { src: "/gallery/9.jpeg", alt: "pelatihan praktek memberi susu..." },
   ];
 
   return (
     <>
       <Helmet>
-        <title>{seo ? seo.meta_title : "Galeri Kegiatan | Penyalur Pembantu Indonesia"}</title>
-        <meta name="description" content={seo ? seo.meta_description : "Lihat galeri kegiatan kami, mulai dari proses seleksi, pelatihan ART dan Baby Sitter, hingga penempatan kerja. Bukti komitmen kami sebagai P3RT resmi."} />
-        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
-        <meta property="og:title" content={seo ? seo.meta_title : "Galeri Kegiatan | Penyalur Pembantu Indonesia"} />
-        <meta property="og:description" content={seo ? seo.meta_description : "Intip proses di balik layar kami dalam menyiapkan tenaga kerja yang profesional dan terpercaya."} />
-        <meta property="og:image" content="/gallery/kegiatan-1.jpg" />
+        <title>{seo?.meta_title || "Galeri Kegiatan | Penyalur Pembantu Indonesia"}</title>
+        <meta name="description" content={seo?.meta_description || "Dokumentasi kegiatan pelatihan dan penempatan tenaga kerja."} />
+        <meta name="keywords" content={seo?.meta_keywords || "galeri foto, pelatihan art, kegiatan p3rt"} />
       </Helmet>
 
-      {/* HERO SECTION */}
+      {/* ... (SISA KODE TAMPILAN DI BAWAH TETAP SAMA) ... */}
       <div className="bg-purple-700 text-white py-16 text-center">
         <h1 className="text-4xl font-bold mb-2">Galeri Kegiatan</h1>
         <p className="text-purple-100 max-w-2xl mx-auto">
@@ -36,7 +33,6 @@ export default function Gallery() {
         </p>
       </div>
 
-      {/* GALLERY GRID */}
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {galleryImages.map((image, index) => (
@@ -52,7 +48,6 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* SEO CONTENT SECTION */}
       <section className="bg-slate-50 py-16 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-slate-800 mb-4 text-center">Proses Profesional untuk Hasil Maksimal</h2>

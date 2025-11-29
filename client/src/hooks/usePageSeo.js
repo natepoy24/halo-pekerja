@@ -1,31 +1,31 @@
-// Hook inti React untuk state dan side-effects.
 import { useState, useEffect } from 'react';
-// Klien HTTP untuk membuat permintaan API.
 import axios from 'axios';
 
-// URL dasar API Anda.
-const API_URL = 'https://api.halopekerja.com';
+export default function usePageSeo(pageName) {
+    const [seoData, setSeoData] = useState(null);
+    // URL API Production
+    const API_URL = 'https://api.halopekerja.com';
 
-/**
- * Custom hook untuk mengambil data SEO spesifik untuk sebuah halaman.
- * @param {string} pageName - Nama unik halaman (misal: 'home', 'tentang-kami').
- * @returns {object|null} - Objek data SEO atau null jika sedang memuat atau gagal.
- */
-const usePageSeo = (pageName) => {
-  // State untuk menyimpan data SEO yang diambil dari API.
-  const [seo, setSeo] = useState(null);
+    useEffect(() => {
+        const fetchSeo = async () => {
+            try {
+                const res = await axios.get(`${API_URL}/api/page-seo/${pageName}`);
+                setSeoData(res.data);
+            } catch (error) {
+                console.error(`Gagal memuat SEO untuk halaman ${pageName}:`, error);
+                // Opsional: Set default data jika gagal
+                setSeoData({
+                    meta_title: 'Penyalur Pembantu Indonesia',
+                    meta_description: 'Layanan penyalur tenaga kerja rumah tangga terpercaya.',
+                    meta_keywords: 'penyalur pembantu, art, baby sitter'
+                });
+            }
+        };
 
-  useEffect(() => {
-    // Jangan jalankan jika nama halaman tidak ada.
-    if (!pageName) return;
+        if (pageName) {
+            fetchSeo();
+        }
+    }, [pageName]);
 
-    axios.get(`${API_URL}/api/page-seo/${pageName}`)
-      .then(response => setSeo(response.data))
-      .catch(error => console.error(`Gagal mengambil data SEO untuk halaman '${pageName}':`, error));
-
-  }, [pageName]); // Jalankan kembali efek ini jika pageName berubah.
-
-  return seo;
-};
-
-export default usePageSeo;
+    return seoData;
+}
