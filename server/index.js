@@ -18,6 +18,30 @@ app.use(express.json());
 // Middleware untuk menyajikan file statis dari direktori 'uploads'.
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Middleware untuk verifikasi token JWT dan role.
+const verifyToken = (requiredRole) => (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    if (!token) {
+        return res.status(401).json({ message: 'Akses ditolak. Token tidak disediakan.' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Token tidak valid.' });
+        }
+
+        // Jika role dibutuhkan dan role user tidak sesuai
+        if (requiredRole && user.role !== requiredRole) {
+            return res.status(403).json({ message: `Akses ditolak. Hanya ${requiredRole} yang diizinkan.` });
+        }
+
+        req.user = user; // Simpan data user dari token ke request
+        next();
+    });
+};
+
 // --- Konfigurasi Multer untuk File Upload ---
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)){
@@ -417,6 +441,95 @@ app.delete('/api/articles/:id', async (req, res) => {
         res.json({ message: 'Artikel berhasil dihapus' });
     } catch (error) {
         res.status(500).json({ message: 'Gagal menghapus artikel' });
+    }
+});
+
+// ================= Pengaturan Website (SEO & Umum) =================
+
+// Endpoint untuk mengambil pengaturan website (publik).
+app.get('/api/settings', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM settings WHERE id = 1');
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            // Berikan pengaturan default jika tidak ada di database.
+            res.json({ 
+                site_name: 'Penyalur Pembantu Indonesia', 
+                meta_description: '', 
+                google_verification_code: '' 
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal mengambil pengaturan' });
+    }
+});
+
+// Endpoint untuk memperbarui pengaturan website (hanya superadmin).
+app.put('/api/settings', verifyToken('superadmin'), async (req, res) => {
+    try {
+        const { site_name, meta_description, meta_keywords, google_verification_code } = req.body;
+        
+        // Cek apakah record pengaturan dengan id=1 sudah ada.
+        const [check] = await db.query('SELECT id FROM settings WHERE id = 1');
+        
+        if (check.length === 0) {
+            // Jika tidak ada, buat record baru.
+            await db.query(
+                'INSERT INTO settings (id, site_name, meta_description, meta_keywords, google_verification_code) VALUES (1, ?, ?, ?, ?)',
+                [site_name, meta_description, meta_keywords, google_verification_code]
+            );
+        } else {
+            // Jika sudah ada, perbarui record tersebut.
+            await db.query(
+                'UPDATE settings SET site_name=?, meta_description=?, meta_keywords=?, google_verification_code=? WHERE id=1',
+                [site_name, meta_description, meta_keywords, google_verification_code]
+            );
+        }
+
+        res.json({ message: 'Pengaturan berhasil disimpan!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal menyimpan pengaturan' });
+    }
+});
+
+// ================= Manajemen SEO per Halaman (Page SEO) =================
+
+// Endpoint untuk mengambil data SEO untuk semua halaman.
+app.get('/api/page-seo', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM page_seo');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal mengambil data SEO halaman' });
+    }
+});
+
+// Endpoint untuk mengambil data SEO untuk satu halaman spesifik berdasarkan nama.
+app.get('/api/page-seo/:page_name', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM page_seo WHERE page_name = ?', [req.params.page_name]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ message: 'Data SEO untuk halaman ini tidak ditemukan' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    }
+});
+
+// Endpoint untuk memperbarui data SEO sebuah halaman (hanya superadmin).
+app.put('/api/page-seo/:page_name', verifyToken('superadmin'), async (req, res) => {
+    try {
+        const { meta_title, meta_description, meta_keywords } = req.body;
+        const { page_name } = req.params;
+
+        await db.query('UPDATE page_seo SET meta_title=?, meta_description=?, meta_keywords=? WHERE page_name=?', [meta_title, meta_description, meta_keywords, page_name]);
+        res.json({ message: 'Data SEO halaman berhasil diperbarui!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal memperbarui SEO halaman' });
     }
 });
 

@@ -1,6 +1,10 @@
 import { Helmet } from "react-helmet-async";
+import usePageSeo from "../hooks/usePageSeo"; // Impor hook kustom
 
 export default function Gallery() {
+  // Ambil data SEO khusus untuk halaman 'gallery'
+  const seo = usePageSeo('gallery');
+
   // Daftar gambar untuk galeri, diambil dari direktori /public/gallery/.
   const galleryImages = [
     { src: "/gallery/1.png", alt: "foto bersama semua calon pekerja" },
@@ -16,11 +20,11 @@ export default function Gallery() {
   return (
     <>
       <Helmet>
-        <title>Galeri Kegiatan | Penyalur Pembantu Indonesia</title>
-        <meta name="description" content="Lihat galeri kegiatan kami, mulai dari proses seleksi, pelatihan ART dan Baby Sitter, hingga penempatan kerja. Bukti komitmen kami sebagai P3RT resmi." />
-        <meta name="keywords" content="galeri penyalur pembantu, foto pelatihan art, kegiatan p3rt, seleksi baby sitter, dokumentasi penyalur" />
-        <meta property="og:title" content="Galeri Kegiatan | Penyalur Pembantu Indonesia" />
-        <meta property="og:description" content="Intip proses di balik layar kami dalam menyiapkan tenaga kerja yang profesional dan terpercaya." />
+        <title>{seo ? seo.meta_title : "Galeri Kegiatan | Penyalur Pembantu Indonesia"}</title>
+        <meta name="description" content={seo ? seo.meta_description : "Lihat galeri kegiatan kami, mulai dari proses seleksi, pelatihan ART dan Baby Sitter, hingga penempatan kerja. Bukti komitmen kami sebagai P3RT resmi."} />
+        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
+        <meta property="og:title" content={seo ? seo.meta_title : "Galeri Kegiatan | Penyalur Pembantu Indonesia"} />
+        <meta property="og:description" content={seo ? seo.meta_description : "Intip proses di balik layar kami dalam menyiapkan tenaga kerja yang profesional dan terpercaya."} />
         <meta property="og:image" content="/gallery/kegiatan-1.jpg" />
       </Helmet>
 

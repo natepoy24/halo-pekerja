@@ -4,11 +4,17 @@ import axios from "axios";
 import { Helmet } from "react-helmet-async";
 import { Users, ArrowRight, CheckCircle, Star, MessageCircle, MapPin, Briefcase, ShieldCheck, GraduationCap, Replace, Fingerprint, Zap, LifeBuoy } from "lucide-react";
 
+// Impor komponen dan hook kustom.
 import FaqAccordion from "../components/FaqAccordion";
 import AnimatedBadge from "../components/AnimatedBadge";
+import usePageSeo from "../hooks/usePageSeo"; // <-- Impor Hook
+
 export default function Home() {
   const [workers, setWorkers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Ambil data SEO khusus untuk halaman 'home' menggunakan hook.
+  const seo = usePageSeo('home');
 
   // Mengambil data pekerja dari API saat komponen dimuat.
   useEffect(() => {
@@ -56,9 +62,14 @@ export default function Home() {
   return (
     <>
       <Helmet>
-        <title>Penyalur Pembantu & ART Terpercaya di Jabodetabek | P3RT Resmi</title>
-        <meta name="description" content="Cari ART, Baby Sitter, dan Perawat Lansia terlatih & terverifikasi. Kami adalah P3RT resmi di Jabodetabek yang menyediakan tenaga kerja profesional dengan garansi." />
-        <meta name="keywords" content="penyalur pembantu, art, baby sitter, perawat lansia, jabodetabek, p3rt, lptks, yayasan pembantu, jasa art, penyalur prt" />
+        {/* Prioritaskan data dari DB. Jika belum termuat, tampilkan judul default. */}
+        <title>{seo ? seo.meta_title : "Penyalur Pembantu & ART Terpercaya di Jabodetabek | P3RT Resmi"}</title>
+        <meta name="description" content={seo ? seo.meta_description : "Cari ART, Baby Sitter, dan Perawat Lansia terlatih & terverifikasi. Kami adalah P3RT resmi di Jabodetabek yang menyediakan tenaga kerja profesional dengan garansi."} />
+        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
+        
+        {/* Open Graph menggunakan data yang sama untuk tampilan share di media sosial. */}
+        <meta property="og:title" content={seo ? seo.meta_title : "Penyalur Pembantu & ART Terpercaya di Jabodetabek | P3RT Resmi"} />
+        <meta property="og:description" content={seo ? seo.meta_description : "Cari ART, Baby Sitter, dan Perawat Lansia terlatih & terverifikasi. Kami adalah P3RT resmi di Jabodetabek yang menyediakan tenaga kerja profesional dengan garansi."} />
       </Helmet>
       {/* --- HERO SECTION --- */}
       <header className="bg-white overflow-hidden">

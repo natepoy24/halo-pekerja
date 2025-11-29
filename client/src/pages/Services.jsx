@@ -1,8 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import { CheckCircle, Clock, DollarSign, ShieldCheck, Star } from "lucide-react";
 import FaqAccordion from "../components/FaqAccordion";
+import usePageSeo from "../hooks/usePageSeo"; // Impor hook kustom
 
 export default function Services() {
+  // Ambil data SEO khusus untuk halaman 'services'
+  const seo = usePageSeo('services');
+
   // Data statis untuk layanan yang ditawarkan.
   const services = [
     {
@@ -64,11 +68,11 @@ export default function Services() {
     <div className="bg-slate-50 font-sans text-slate-800">
       
       <Helmet>
-        <title>Layanan Kami | Penyalur ART, Baby Sitter, Perawat Lansia</title>
-        <meta name="description" content="Detail layanan profesional kami: Asisten Rumah Tangga (ART), Baby Sitter, dan Perawat Lansia. Dapatkan tenaga kerja terverifikasi dan terlatih untuk keluarga Anda." />
-        <meta name="keywords" content="layanan penyalur pembantu, jasa art, jasa baby sitter, jasa perawat lansia, tugas art, tugas baby sitter" />
-        <meta property="og:title" content="Layanan & Standar Gaji 2025 | Penyalur Pembantu Indonesia" />
-        <meta property="og:description" content="Lihat detail layanan ART, Baby Sitter, dan Perawat Lansia kami, lengkap dengan rincian tugas dan estimasi standar gaji terbaru." />
+        <title>{seo ? seo.meta_title : "Layanan Kami | Penyalur ART, Baby Sitter, Perawat Lansia"}</title>
+        <meta name="description" content={seo ? seo.meta_description : "Detail layanan profesional kami: Asisten Rumah Tangga (ART), Baby Sitter, dan Perawat Lansia. Dapatkan tenaga kerja terverifikasi dan terlatih untuk keluarga Anda."} />
+        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
+        <meta property="og:title" content={seo ? seo.meta_title : "Layanan & Standar Gaji 2025 | Penyalur Pembantu Indonesia"} />
+        <meta property="og:description" content={seo ? seo.meta_description : "Lihat detail layanan ART, Baby Sitter, dan Perawat Lansia kami, lengkap dengan rincian tugas dan estimasi standar gaji terbaru."} />
         <meta property="og:image" content="/1.png" />
       </Helmet>
 

@@ -1,7 +1,11 @@
 import { Helmet } from "react-helmet-async";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import usePageSeo from "../hooks/usePageSeo"; // Impor hook kustom
 
 export default function Contact() {
+  // Ambil data SEO khusus untuk halaman 'contact'
+  const seo = usePageSeo('contact');
+
   const handleSendMessage = (e) => {
     e.preventDefault();
     const nama = e.target.nama.value;
@@ -15,11 +19,11 @@ export default function Contact() {
   return (
     <>
       <Helmet>
-        <title>Kontak Kami | Penyalur Pembantu Indonesia</title>
-        <meta name="description" content="Hubungi kami untuk konsultasi gratis. Dapatkan informasi alamat, nomor WhatsApp, email, dan jam operasional Penyalur Pembantu Indonesia." />
-        <meta name="keywords" content="kontak penyalur pembantu, alamat penyalur pembantu, nomor wa penyalur pembantu, P3RT jakarta" />
-        <meta property="og:title" content="Kontak Kami | Penyalur Pembantu Indonesia" />
-        <meta property="og:description" content="Hubungi kami untuk konsultasi gratis. Dapatkan informasi alamat, nomor WhatsApp, email, dan jam operasional." />
+        <title>{seo ? seo.meta_title : "Kontak Kami | Penyalur Pembantu Indonesia"}</title>
+        <meta name="description" content={seo ? seo.meta_description : "Hubungi kami untuk konsultasi gratis. Dapatkan informasi alamat, nomor WhatsApp, email, dan jam operasional Penyalur Pembantu Indonesia."} />
+        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
+        <meta property="og:title" content={seo ? seo.meta_title : "Kontak Kami | Penyalur Pembantu Indonesia"} />
+        <meta property="og:description" content={seo ? seo.meta_description : "Hubungi kami untuk konsultasi gratis. Dapatkan informasi alamat, nomor WhatsApp, email, dan jam operasional."} />
         <meta property="og:image" content="/new-favicon.png" />
       </Helmet>
 

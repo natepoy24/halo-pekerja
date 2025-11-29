@@ -1,8 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import { Users, ShieldCheck, Heart, Target, ArrowRight } from "lucide-react";
 import FaqAccordion from "../components/FaqAccordion";
+import usePageSeo from "../hooks/usePageSeo"; // Impor hook kustom
 
 export default function About() {
+  // Ambil data SEO khusus untuk halaman 'about'
+  const seo = usePageSeo('about');
+
   const faqItemsAbout = [
     { q: "Apa bedanya Penyalur Pembantu Indonesia dengan agen perorangan/calo?", a: "Kami adalah P3RT (Perusahaan Penempatan Pekerja Rumah Tangga) resmi yang berbadan hukum, bukan perorangan. Ini berarti kami beroperasi di bawah pengawasan pemerintah, memiliki standar prosedur yang jelas, dan memberikan jaminan keamanan serta kontrak kerja yang legal bagi pengguna jasa dan pekerja." },
     { q: "Bagaimana proses seleksi tenaga kerja di sini?", a: "Setiap calon pekerja wajib melalui beberapa tahap: verifikasi identitas asli (KTP, KK), wawancara mendalam untuk mengetahui karakter dan motivasi, pengecekan latar belakang, serta pelatihan dasar mengenai etika dan keterampilan kerja sebelum kami nyatakan siap untuk disalurkan." },
@@ -13,11 +17,11 @@ export default function About() {
   return (
     <>
       <Helmet>
-        <title>Tentang Kami | Penyalur Pembantu & ART Terpercaya</title>
-        <meta name="description" content="Pelajari lebih lanjut tentang visi, misi, dan komitmen kami sebagai P3RT resmi dalam menyediakan tenaga kerja rumah tangga yang profesional, amanah, dan terverifikasi." />
-        <meta name="keywords" content="tentang kami, visi misi, penyalur pembantu, P3RT, LPTKS, profil perusahaan" />
-        <meta property="og:title" content="Tentang Kami | Penyalur Pembantu & ART Terpercaya" />
-        <meta property="og:description" content="Kenali lebih dalam Penyalur Pembantu Indonesia, P3RT resmi yang berkomitmen pada legalitas, keamanan, dan kualitas tenaga kerja." />
+        <title>{seo ? seo.meta_title : "Tentang Kami | Penyalur Pembantu & ART Terpercaya"}</title>
+        <meta name="description" content={seo ? seo.meta_description : "Pelajari lebih lanjut tentang visi, misi, dan komitmen kami sebagai P3RT resmi dalam menyediakan tenaga kerja rumah tangga yang profesional, amanah, dan terverifikasi."} />
+        {seo?.meta_keywords && <meta name="keywords" content={seo.meta_keywords} />}
+        <meta property="og:title" content={seo ? seo.meta_title : "Tentang Kami | Penyalur Pembantu & ART Terpercaya"} />
+        <meta property="og:description" content={seo ? seo.meta_description : "Kenali lebih dalam Penyalur Pembantu Indonesia, P3RT resmi yang berkomitmen pada legalitas, keamanan, dan kualitas tenaga kerja."} />
         <meta property="og:image" content="/hero-tentang.jpeg" />
       </Helmet>
 
