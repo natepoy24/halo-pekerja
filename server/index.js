@@ -7,6 +7,8 @@
     const bcrypt = require('bcryptjs');
     const jwt = require('jsonwebtoken');
     require('dotenv').config();
+const { SitemapStream, streamToPromise } = require('sitemap');
+const { Readable } = require('stream');
 
     const app = express();
     const PORT = process.env.PORT || 5000;
@@ -530,6 +532,112 @@
             res.json({ message: 'Data SEO halaman berhasil diperbarui!' });
         } catch (error) {
             res.status(500).json({ message: 'Gagal memperbarui SEO halaman' });
+        }
+    });
+
+    // ================= Sitemap & Robots.txt =================
+
+    // Endpoint untuk menyajikan robots.txt dari folder build client
+    app.get('/robots.txt', (req, res) => {
+        res.sendFile(path.join(__dirname, '../client/dist/robots.txt'));
+    });
+
+    // Endpoint untuk generate sitemap.xml secara dinamis
+    app.get('/sitemap.xml', async (req, res) => {
+        res.header('Content-Type', 'application/xml');
+        const baseUrl = process.env.SITE_URL || 'https://www.halopekerja.com';
+
+        try {
+            const links = [];
+
+            // 1. Halaman Statis
+            const staticPages = [
+                { url: '/', changefreq: 'daily', priority: 1.0 },
+                { url: '/pekerja', changefreq: 'daily', priority: 0.9 },
+                { url: '/artikel', changefreq: 'weekly', priority: 0.8 },
+                { url: '/tentang-kami', changefreq: 'monthly', priority: 0.7 },
+                { url: '/kontak', changefreq: 'monthly', priority: 0.7 },
+            ];
+            staticPages.forEach(page => links.push(page));
+
+            // 2. Halaman Dinamis: Pekerja
+            const [workers] = await db.query('SELECT id, updated_at FROM workers');
+            workers.forEach(worker => {
+                links.push({
+                    url: `/pekerja/${worker.id}`,
+                    changefreq: 'weekly',
+                    priority: 0.8,
+                    lastmod: worker.updated_at,
+                });
+            });
+
+            // 3. Halaman Dinamis: Artikel
+            const [articles] = await db.query('SELECT slug, updated_at FROM articles');
+            articles.forEach(article => {
+                links.push({
+                    url: `/artikel/${article.slug}`,
+                    changefreq: 'monthly',
+                    priority: 0.7,
+                    lastmod: article.updated_at,
+                });
+            });
+
+            const stream = new SitemapStream({ hostname: baseUrl });
+            const xml = await streamToPromise(Readable.from(links).pipe(stream));
+            
+            res.send(xml.toString());
+
+        } catch (error) {
+            console.error('Gagal membuat sitemap:', error);
+            res.status(500).send('Error generating sitemap');
+        }
+    });
+
+    // 1. Sajikan file statis dari folder build React (client/dist)
+    // Pastikan Anda sudah menjalankan 'npm run build' di folder client
+    app.use(express.static(path.join(__dirname, '../client/dist'), { index: false }));
+
+    // 2. Middleware Uploads (Tetap ada, posisinya sudah benar di atas)
+    // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+    // 3. HANDLE SEMUA REQUEST FRONTEND & INJECT META TAG
+    app.get('*', async (req, res, next) => {
+        // Jika request adalah untuk API atau file uploads, abaikan handler ini
+        if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+            return next();
+        }
+
+        try {
+            // Ambil path ke file index.html hasil build React
+            const indexPath = path.join(__dirname, '../client/dist/index.html');
+
+            // Baca file index.html
+            fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
+                if (err) {
+                    console.error('Error reading index.html', err);
+                    return res.status(500).send('Terjadi kesalahan server.');
+                }
+
+                // Ambil kode verifikasi dari Database
+                let verificationTag = '';
+                try {
+                    const [rows] = await db.query('SELECT google_verification_code FROM settings WHERE id = 1');
+                    if (rows.length > 0 && rows[0].google_verification_code) {
+                        // Buat string meta tag lengkap
+                        verificationTag = `<meta name="google-site-verification" content="${rows[0].google_verification_code}" />`;
+                    }
+                } catch (dbError) {
+                    console.error('Database error:', dbError);
+                }
+
+                // Ganti Placeholder dengan Meta Tag Asli
+                const finalHtml = htmlData.replace('</head>', `${verificationTag}</head>`);
+
+                // Kirim HTML yang sudah dimodifikasi ke browser/Google Bot
+                res.send(finalHtml);
+            });
+        } catch (error) {
+            next(error);
         }
     });
 

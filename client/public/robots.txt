@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Halaman Admin dan Login tidak perlu diindeks
+Disallow: /admin
+Disallow: /login
+Disallow: /api/
+
+# Lokasi Sitemap (Ganti domain sesuai domain asli Anda)
+Sitemap: https://www.halopekerja.com/sitemap.xml
