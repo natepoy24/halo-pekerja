@@ -1,10 +1,11 @@
 // 1. WAJIB DI PALING ATAS
-require('dotenv').config(); 
+const path = require('path'); // Modul Node.js untuk bekerja dengan path file dan direktori.
+// 1. PERBAIKAN: Load env PALING PERTAMA agar database tidak error
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const express = require('express'); // Framework web untuk Node.js.
 const cors = require('cors'); // Middleware untuk mengaktifkan Cross-Origin Resource Sharing.
 const multer = require('multer'); // Middleware untuk menangani `multipart/form-data`, digunakan untuk upload file.
-const path = require('path'); // Modul Node.js untuk bekerja dengan path file dan direktori.
 const fs = require('fs'); // Modul Node.js untuk berinteraksi dengan sistem file.
 // 2. Database diload setelah dotenv, jadi aman
 const db = require('./database'); 
@@ -18,29 +19,22 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Middleware untuk menyajikan file statis dari direktori 'uploads'.
+// Middleware untuk menyajikan file upload
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Middleware untuk verifikasi token JWT dan role.
+// Middleware Auth
 const verifyToken = (requiredRole) => (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) {
-        return res.status(401).json({ message: 'Akses ditolak. Token tidak disediakan.' });
-    }
+    if (!token) return res.status(401).json({ message: 'Akses ditolak.' });
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({ message: 'Token tidak valid.' });
-        }
-
-        // Jika role dibutuhkan dan role user tidak sesuai
+        if (err) return res.status(403).json({ message: 'Token tidak valid.' });
         if (requiredRole && user.role !== requiredRole) {
-            return res.status(403).json({ message: `Akses ditolak. Hanya ${requiredRole} yang diizinkan.` });
+            return res.status(403).json({ message: 'Akses ditolak.' });
         }
-
-        req.user = user; // Simpan data user dari token ke request
+        req.user = user;
         next();
     });
 };
@@ -51,14 +45,11 @@ if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir);
 }
 
-// Konfigurasi penyimpanan file, termasuk destinasi dan penamaan file unik.
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname)); 
     }
 });
 const upload = multer({ storage: storage });
@@ -66,10 +57,7 @@ const upload = multer({ storage: storage });
 
 // ================= Endpoint API =================
 
-// Endpoint untuk verifikasi status server.
-app.get('/', (req, res) => {
-    res.send('API Penyalur Pembantu Aktif! Server berjalan normal.');
-});
+app.get('/', (req, res) => res.send('API Active'));
 
 // Endpoint untuk menambah data pekerja baru.
 app.post('/api/workers', upload.single('fotoUrl'), async (req, res) => {
@@ -536,49 +524,48 @@ app.put('/api/page-seo/:page_name', verifyToken('superadmin'), async (req, res) 
     }
 });
  
-// ================= PERUBAHAN PENTING DI SINI =================
+// ================= FRONTEND SERVING & SEO (BAGIAN KRUSIAL) =================
 
-// 1. Sajikan file statis dari folder build React (client/dist)
-// Pastikan Anda sudah menjalankan 'npm run build' di folder client
+// Endpoint robots.txt
+app.get('/robots.txt', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/robots.txt'));
+});
+
+// Sajikan file statis (JS/CSS) tanpa index.html otomatis
 app.use(express.static(path.join(__dirname, '../client/dist'), { index: false }));
 
-// 2. Middleware Uploads (Tetap ada)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// 3. HANDLE SEMUA REQUEST FRONTEND & INJECT META TAG
-app.get('/*', async (req, res, next) => {
-    // Jika request adalah untuk API, abaikan handler ini (lanjut ke route API di bawah atau 404)
+// 2. PERBAIKAN: Gunakan Regex /.*/ untuk menangkap semua rute di Express 5
+// JANGAN gunakan app.get('*')
+app.get(/.*/, async (req, res, next) => {
+    // Abaikan request API/Uploads agar tidak bentrok
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
         return next();
     }
 
     try {
-        // Ambil path ke file index.html hasil build React
         const indexPath = path.join(__dirname, '../client/dist/index.html');
 
-        // Baca file index.html
         fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
             if (err) {
                 console.error('Error reading index.html', err);
-                return res.status(500).send('Terjadi kesalahan server.');
+                return res.status(500).send('Server Error: Build frontend not found.');
             }
 
-            // Ambil kode verifikasi dari Database
+            // Inject Google Verification Code
             let verificationTag = '';
             try {
                 const [rows] = await db.query('SELECT google_verification_code FROM settings WHERE id = 1');
                 if (rows.length > 0 && rows[0].google_verification_code) {
-                    // Buat string meta tag lengkap
+                    // Inject Meta Tag
                     verificationTag = `<meta name="google-site-verification" content="${rows[0].google_verification_code}" />`;
                 }
             } catch (dbError) {
-                console.error('Database error:', dbError);
+                console.error('DB Error (Settings):', dbError.message);
             }
 
-            // Ganti Placeholder dengan Meta Tag Asli
+            // Sisipkan tag tepat sebelum </head>
             const finalHtml = htmlData.replace('</head>', `${verificationTag}</head>`);
-
-            // Kirim HTML yang sudah dimodifikasi ke browser/Google Bot
+            
             res.send(finalHtml);
         });
     } catch (error) {
@@ -588,5 +575,5 @@ app.get('/*', async (req, res, next) => {
 
 // --- Menjalankan Server ---
 app.listen(PORT, () => {
-    console.log(`🚀 Server berjalan di port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
