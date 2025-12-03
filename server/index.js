@@ -1,647 +1,592 @@
-    const express = require('express');
-    const cors = require('cors');
-    const multer = require('multer');
-    const path = require('path');
-    const fs = require('fs');
-    const db = require('./database');
-    const bcrypt = require('bcryptjs');
-    const jwt = require('jsonwebtoken');
-    require('dotenv').config();
-const { SitemapStream, streamToPromise } = require('sitemap');
-const { Readable } = require('stream');
+const express = require('express');
+const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const db = require('./database');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-    const app = express();
-    const PORT = process.env.PORT || 5000;
 
-    // --- MIDDLEWARE ---
-    app.use(cors());
-    app.use(express.json());
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-    // Middleware untuk menyajikan file statis dari direktori 'uploads'.
-    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// --- MIDDLEWARE ---
+app.use(cors());
+app.use(express.json());
 
-    // Middleware untuk verifikasi token JWT dan role.
-    const verifyToken = (requiredRole) => (req, res, next) => {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+// Middleware untuk menyajikan file statis dari direktori 'uploads'.
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-        if (!token) {
-            return res.status(401).json({ message: 'Akses ditolak. Token tidak disediakan.' });
-        }
+// Middleware untuk verifikasi token JWT dan role.
+const verifyToken = (requiredRole) => (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-            if (err) {
-                return res.status(403).json({ message: 'Token tidak valid.' });
-            }
-
-            // Jika role dibutuhkan dan role user tidak sesuai
-            if (requiredRole && user.role !== requiredRole) {
-                return res.status(403).json({ message: `Akses ditolak. Hanya ${requiredRole} yang diizinkan.` });
-            }
-
-            req.user = user; // Simpan data user dari token ke request
-            next();
-        });
-    };
-
-    // --- Konfigurasi Multer untuk File Upload ---
-    const uploadDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadDir)){
-        fs.mkdirSync(uploadDir);
+    if (!token) {
+        return res.status(401).json({ message: 'Akses ditolak. Token tidak disediakan.' });
     }
 
-    // Konfigurasi penyimpanan file, termasuk destinasi dan penamaan file unik.
-    const storage = multer.diskStorage({
-        destination: function (req, file, cb) {
-        cb(null, 'uploads/')
-        },
-        filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Token tidak valid.' });
         }
-    });
-    const upload = multer({ storage: storage });
 
-
-    // ================= Endpoint API =================
-
-    // Endpoint untuk verifikasi status server.
-    app.get('/', (req, res) => {
-        res.send('API Penyalur Pembantu Aktif! Server berjalan normal.');
-    });
-
-    // Endpoint untuk menambah data pekerja baru.
-    app.post('/api/workers', upload.single('fotoUrl'), async (req, res) => {
-        try {
-            const data = req.body;
-            const file = req.file;
-            
-            const photoFilename = file ? file.filename : null;
-
-            const sql = `
-                INSERT INTO workers 
-                (name, age, category, origin, marital_status, religion, education, tribe, experience, skills, shortcomings, languages, status, salary, description, photo_url) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-
-            const values = [
-                data.nama, 
-                data.umur, 
-                data.kategori, 
-                data.lokasi, 
-                data.status_perkawinan,
-                data.agama, 
-                data.pendidikan || '-',            
-                data.suku || '-', 
-                data.pengalaman, 
-                data.keterampilan,
-                data.kekurangan, 
-                data.bahasa_asing, 
-                data.status, 
-                data.gaji, 
-                data.deskripsi, 
-                photoFilename
-            ];
-
-            const [result] = await db.query(sql, values);
-            
-            res.status(201).json({ 
-                message: 'Pekerja berhasil ditambahkan!', 
-                data: { id: result.insertId, ...data, photoFilename } 
-            });
-
-        } catch (error) {
-            console.error("Error input:", error);
-            res.status(500).json({ message: 'Gagal menyimpan data', error: error.message });
+        // Jika role dibutuhkan dan role user tidak sesuai
+        if (requiredRole && user.role !== requiredRole) {
+            return res.status(403).json({ message: `Akses ditolak. Hanya ${requiredRole} yang diizinkan.` });
         }
-    });
 
-    // Endpoint untuk mengambil semua data pekerja.
-    app.get('/api/workers', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM workers ORDER BY created_at DESC');
-            res.json(rows);
-        } catch (error) {
-            console.error("Error ambil data:", error);
-            res.status(500).json({ message: 'Gagal mengambil data' });
+        req.user = user; // Simpan data user dari token ke request
+        next();
+    });
+};
+
+// --- Konfigurasi Multer untuk File Upload ---
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)){
+    fs.mkdirSync(uploadDir);
+}
+
+// Konfigurasi penyimpanan file, termasuk destinasi dan penamaan file unik.
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    }
+});
+const upload = multer({ storage: storage });
+
+
+// ================= Endpoint API =================
+
+// Endpoint untuk verifikasi status server.
+app.get('/', (req, res) => {
+    res.send('API Penyalur Pembantu Aktif! Server berjalan normal.');
+});
+
+// Endpoint untuk menambah data pekerja baru.
+app.post('/api/workers', upload.single('fotoUrl'), async (req, res) => {
+    try {
+        const data = req.body;
+        const file = req.file;
+        
+        const photoFilename = file ? file.filename : null;
+
+        const sql = `
+            INSERT INTO workers 
+            (name, age, category, origin, marital_status, religion, education, tribe, experience, skills, shortcomings, languages, status, salary, description, photo_url) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        const values = [
+            data.nama, 
+            data.umur, 
+            data.kategori, 
+            data.lokasi, 
+            data.status_perkawinan,
+            data.agama, 
+            data.pendidikan || '-',            
+            data.suku || '-', 
+            data.pengalaman, 
+            data.keterampilan,
+            data.kekurangan, 
+            data.bahasa_asing, 
+            data.status, 
+            data.gaji, 
+            data.deskripsi, 
+            photoFilename
+        ];
+
+        const [result] = await db.query(sql, values);
+        
+        res.status(201).json({ 
+            message: 'Pekerja berhasil ditambahkan!', 
+            data: { id: result.insertId, ...data, photoFilename } 
+        });
+
+    } catch (error) {
+        console.error("Error input:", error);
+        res.status(500).json({ message: 'Gagal menyimpan data', error: error.message });
+    }
+});
+
+// Endpoint untuk mengambil semua data pekerja.
+app.get('/api/workers', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM workers ORDER BY created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        console.error("Error ambil data:", error);
+        res.status(500).json({ message: 'Gagal mengambil data' });
+    }
+});
+
+// Endpoint untuk mengambil data satu pekerja berdasarkan ID.
+app.get('/api/workers/:id', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM workers WHERE id = ?', [req.params.id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Pekerja tidak ditemukan' });
         }
-    });
+        
+        res.json(rows[0]);
+    } catch (error) {
+        console.error("Error ambil detail:", error);
+        res.status(500).json({ message: 'Gagal mengambil detail pekerja' });
+    }
+});
 
-    // Endpoint untuk mengambil data satu pekerja berdasarkan ID.
-    app.get('/api/workers/:id', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM workers WHERE id = ?', [req.params.id]);
-            
-            if (rows.length === 0) {
-                return res.status(404).json({ message: 'Pekerja tidak ditemukan' });
+// Endpoint untuk memperbarui data pekerja berdasarkan ID.
+app.put('/api/workers/:id', upload.single('fotoUrl'), async (req, res) => {
+    try {
+        const id = req.params.id;
+        const data = req.body;
+        const file = req.file;
+        
+        let sql = `
+            UPDATE workers SET 
+            name=?, age=?, category=?, origin=?, marital_status=?, religion=?, education=?,
+            tribe=?, experience=?, skills=?, shortcomings=?, languages=?, 
+            status=?, salary=?, description=?
+        `;
+        
+        const values = [
+            data.nama, data.umur, data.kategori, data.lokasi, data.status_perkawinan,
+            data.agama, data.pendidikan,
+            data.suku, data.pengalaman, data.keterampilan,
+            data.kekurangan, data.bahasa_asing, data.status, data.gaji, data.deskripsi
+        ];
+
+        // Jika ada file foto baru, perbarui juga photo_url.
+        if (file) {
+            sql += `, photo_url=?`;
+            values.push(file.filename);
+        }
+
+        sql += ` WHERE id=?`;
+        values.push(id);
+
+        await db.query(sql, values);
+        
+        res.json({ message: 'Data pekerja berhasil diperbarui!' });
+
+    } catch (error) {
+        console.error("Error update:", error);
+        res.status(500).json({ message: 'Gagal update data', error: error.message });
+    }
+});
+
+// Endpoint untuk menghapus data pekerja berdasarkan ID.
+app.delete('/api/workers/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Ambil URL foto untuk dihapus dari storage.
+        const [rows] = await db.query('SELECT photo_url FROM workers WHERE id = ?', [id]);
+        
+        // Jika foto ada, hapus file dari direktori 'uploads'.
+        if (rows.length > 0 && rows[0].photo_url) {
+            const filePath = path.join(__dirname, 'uploads', rows[0].photo_url);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath); 
             }
-            
-            res.json(rows[0]);
-        } catch (error) {
-            console.error("Error ambil detail:", error);
-            res.status(500).json({ message: 'Gagal mengambil detail pekerja' });
         }
-    });
 
-    // Endpoint untuk memperbarui data pekerja berdasarkan ID.
-    app.put('/api/workers/:id', upload.single('fotoUrl'), async (req, res) => {
-        try {
-            const id = req.params.id;
-            const data = req.body;
-            const file = req.file;
-            
-            let sql = `
-                UPDATE workers SET 
-                name=?, age=?, category=?, origin=?, marital_status=?, religion=?, education=?,
-                tribe=?, experience=?, skills=?, shortcomings=?, languages=?, 
-                status=?, salary=?, description=?
-            `;
-            
-            const values = [
-                data.nama, data.umur, data.kategori, data.lokasi, data.status_perkawinan,
-                data.agama, data.pendidikan,
-                data.suku, data.pengalaman, data.keterampilan,
-                data.kekurangan, data.bahasa_asing, data.status, data.gaji, data.deskripsi
-            ];
+        // Hapus record dari database.
+        await db.query('DELETE FROM workers WHERE id = ?', [id]);
 
-            // Jika ada file foto baru, perbarui juga photo_url.
-            if (file) {
-                sql += `, photo_url=?`;
-                values.push(file.filename);
-            }
+        res.json({ message: 'Data pekerja berhasil dihapus' });
 
-            sql += ` WHERE id=?`;
-            values.push(id);
+    } catch (error) {
+        console.error("Error delete:", error);
+        res.status(500).json({ message: 'Gagal menghapus data', error: error.message });
+    }
+});
 
-            await db.query(sql, values);
-            
-            res.json({ message: 'Data pekerja berhasil diperbarui!' });
+// Endpoint untuk otentikasi admin.
+app.post('/api/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
 
-        } catch (error) {
-            console.error("Error update:", error);
-            res.status(500).json({ message: 'Gagal update data', error: error.message });
-        }
-    });
+        // Ambil semua data user
+        const [users] = await db.query('SELECT * FROM admins WHERE username = ?', [username]);
+        
+        if (users.length === 0) return res.status(401).json({ message: 'Username tidak ditemukan!' });
 
-    // Endpoint untuk menghapus data pekerja berdasarkan ID.
-    app.delete('/api/workers/:id', async (req, res) => {
-        try {
-            const id = req.params.id;
+        const admin = users[0];
+        const isMatch = await bcrypt.compare(password, admin.password);
 
-            // Ambil URL foto untuk dihapus dari storage.
-            const [rows] = await db.query('SELECT photo_url FROM workers WHERE id = ?', [id]);
-            
-            // Jika foto ada, hapus file dari direktori 'uploads'.
-            if (rows.length > 0 && rows[0].photo_url) {
-                const filePath = path.join(__dirname, 'uploads', rows[0].photo_url);
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath); 
-                }
-            }
+        if (!isMatch) return res.status(401).json({ message: 'Password salah!' });
 
-            // Hapus record dari database.
-            await db.query('DELETE FROM workers WHERE id = ?', [id]);
+        // Buat JSON Web Token (JWT) untuk sesi.
+        const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-            res.json({ message: 'Data pekerja berhasil dihapus' });
+        res.json({ 
+            message: 'Login berhasil', 
+            token, 
+            username: admin.username,
+            role: admin.role
+        });
 
-        } catch (error) {
-            console.error("Error delete:", error);
-            res.status(500).json({ message: 'Gagal menghapus data', error: error.message });
-        }
-    });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan server' });
+    }
+});
 
-    // Endpoint untuk otentikasi admin.
-    app.post('/api/login', async (req, res) => {
-        try {
-            const { username, password } = req.body;
+// ================= Manajemen User (Khusus Superadmin) =================
 
-            // Ambil semua data user
-            const [users] = await db.query('SELECT * FROM admins WHERE username = ?', [username]);
-            
-            if (users.length === 0) return res.status(401).json({ message: 'Username tidak ditemukan!' });
+// Endpoint untuk mengambil semua data admin.
+app.get('/api/admins', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, username, email, phone, role FROM admins');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal ambil data admin' });
+    }
+});
 
-            const admin = users[0];
-            const isMatch = await bcrypt.compare(password, admin.password);
+// Endpoint untuk menambah admin baru.
+app.post('/api/admins', async (req, res) => {
+    try {
+        const { username, email, phone, password, role } = req.body;
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-            if (!isMatch) return res.status(401).json({ message: 'Password salah!' });
+        await db.query(
+            'INSERT INTO admins (username, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
+            [username, email, phone, hashedPassword, role || 'admin']
+        );
+        res.json({ message: 'Admin baru berhasil dibuat' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal tambah admin', error: error.message });
+    }
+});
 
-            // Buat JSON Web Token (JWT) untuk sesi.
-            const token = jwt.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+// Endpoint untuk memperbarui data admin.
+app.put('/api/admins/:id', async (req, res) => {
+    try {
+        const { username, email, phone, password, role } = req.body;
+        const id = req.params.id;
 
-            res.json({ 
-                message: 'Login berhasil', 
-                token, 
-                username: admin.username,
-                role: admin.role
-            });
+        let sql = 'UPDATE admins SET username=?, email=?, phone=?, role=?';
+        let values = [username, email, phone, role];
 
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Terjadi kesalahan server' });
-        }
-    });
-
-    // ================= Manajemen User (Khusus Superadmin) =================
-
-    // Endpoint untuk mengambil semua data admin.
-    app.get('/api/admins', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT id, username, email, phone, role FROM admins');
-            res.json(rows);
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal ambil data admin' });
-        }
-    });
-
-    // Endpoint untuk menambah admin baru.
-    app.post('/api/admins', async (req, res) => {
-        try {
-            const { username, email, phone, password, role } = req.body;
-            
+        // Jika password baru disediakan, hash dan perbarui.
+        if (password && password.trim() !== "") {
             const hashedPassword = await bcrypt.hash(password, 10);
-
-            await db.query(
-                'INSERT INTO admins (username, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
-                [username, email, phone, hashedPassword, role || 'admin']
-            );
-            res.json({ message: 'Admin baru berhasil dibuat' });
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal tambah admin', error: error.message });
+            sql += ', password=?';
+            values.push(hashedPassword);
         }
-    });
 
-    // Endpoint untuk memperbarui data admin.
-    app.put('/api/admins/:id', async (req, res) => {
-        try {
-            const { username, email, phone, password, role } = req.body;
-            const id = req.params.id;
+        sql += ' WHERE id=?';
+        values.push(id);
 
-            let sql = 'UPDATE admins SET username=?, email=?, phone=?, role=?';
-            let values = [username, email, phone, role];
+        await db.query(sql, values);
+        res.json({ message: 'Data admin berhasil diupdate' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal update admin' });
+    }
+});
 
-            // Jika password baru disediakan, hash dan perbarui.
-            if (password && password.trim() !== "") {
-                const hashedPassword = await bcrypt.hash(password, 10);
-                sql += ', password=?';
-                values.push(hashedPassword);
+// Endpoint untuk menghapus admin.
+app.delete('/api/admins/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Ambil role dari admin yang akan dihapus.
+        const [targets] = await db.query('SELECT role FROM admins WHERE id = ?', [id]);
+        
+        if (targets.length === 0) {
+            return res.status(404).json({ message: 'Admin tidak ditemukan' });
+        }
+
+        const targetRole = targets[0].role;
+
+        // Proteksi agar superadmin terakhir tidak bisa dihapus.
+        if (targetRole === 'superadmin') {
+            const [result] = await db.query('SELECT COUNT(*) as total FROM admins WHERE role = "superadmin"');
+            const totalSuperadmin = result[0].total;
+
+            if (totalSuperadmin <= 1) {
+                return res.status(403).json({ message: 'DILARANG: Ini adalah Superadmin terakhir. Tidak bisa dihapus.' });
             }
-
-            sql += ' WHERE id=?';
-            values.push(id);
-
-            await db.query(sql, values);
-            res.json({ message: 'Data admin berhasil diupdate' });
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal update admin' });
         }
-    });
 
-    // Endpoint untuk menghapus admin.
-    app.delete('/api/admins/:id', async (req, res) => {
-        try {
-            const id = req.params.id;
+        // Lanjutkan penghapusan jika validasi lolos.
+        await db.query('DELETE FROM admins WHERE id = ?', [id]);
+        res.json({ message: 'Admin berhasil dihapus' });
 
-            // Ambil role dari admin yang akan dihapus.
-            const [targets] = await db.query('SELECT role FROM admins WHERE id = ?', [id]);
-            
-            if (targets.length === 0) {
-                return res.status(404).json({ message: 'Admin tidak ditemukan' });
-            }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal hapus admin' });
+    }
+});
 
-            const targetRole = targets[0].role;
+// --- Fungsi Bantuan ---
+const createSlug = (text) => {
+    return text
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, '-')           // Ganti spasi dengan -
+        .replace(/[^\w\-]+/g, '')       // Hapus karakter non-word
+        .replace(/\-\-+/g, '-')         // Ganti multiple - dengan single -
+        .replace(/^-+/, '')             // Trim - di awal
+        .replace(/-+$/, '');            // Trim - di akhir
+};
 
-            // Proteksi agar superadmin terakhir tidak bisa dihapus.
-            if (targetRole === 'superadmin') {
-                const [result] = await db.query('SELECT COUNT(*) as total FROM admins WHERE role = "superadmin"');
-                const totalSuperadmin = result[0].total;
+// ================= Manajemen Artikel (Blog) =================
 
-                if (totalSuperadmin <= 1) {
-                    return res.status(403).json({ message: 'DILARANG: Ini adalah Superadmin terakhir. Tidak bisa dihapus.' });
-                }
-            }
+// Endpoint untuk mengambil semua artikel.
+app.get('/api/articles', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM articles ORDER BY created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal ambil artikel' });
+    }
+});
 
-            // Lanjutkan penghapusan jika validasi lolos.
-            await db.query('DELETE FROM admins WHERE id = ?', [id]);
-            res.json({ message: 'Admin berhasil dihapus' });
+// Endpoint untuk mengambil satu artikel berdasarkan slug.
+app.get('/api/articles/:slug', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM articles WHERE slug = ?', [req.params.slug]);
+        if (rows.length === 0) return res.status(404).json({ message: 'Artikel tidak ditemukan' });
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: 'Error server' });
+    }
+});
 
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Gagal hapus admin' });
-        }
-    });
+// Endpoint untuk menambah artikel baru.
+app.post('/api/articles', upload.single('image'), async (req, res) => {
+    try {
+        const { title, content, meta_title, meta_description, image_alt } = req.body;
+        const file = req.file;
+        const image_url = file ? file.filename : null;
+        
+        // Buat slug unik dari judul.
+        const slug = createSlug(title) + '-' + Math.floor(Math.random() * 1000);
 
-    // --- Fungsi Bantuan ---
-    const createSlug = (text) => {
-        return text
-            .toString()
-            .toLowerCase()
-            .replace(/\s+/g, '-')           // Ganti spasi dengan -
-            .replace(/[^\w\-]+/g, '')       // Hapus karakter non-word
-            .replace(/\-\-+/g, '-')         // Ganti multiple - dengan single -
-            .replace(/^-+/, '')             // Trim - di awal
-            .replace(/-+$/, '');            // Trim - di akhir
-    };
+        const sql = `INSERT INTO articles (title, slug, content, image_url, meta_title, meta_description, image_alt) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        await db.query(sql, [title, slug, content, image_url, meta_title, meta_description, image_alt]);
 
-    // ================= Manajemen Artikel (Blog) =================
+        res.json({ message: 'Artikel berhasil diterbitkan!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal posting artikel' });
+    }
+});
 
-    // Endpoint untuk mengambil semua artikel.
-    app.get('/api/articles', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM articles ORDER BY created_at DESC');
-            res.json(rows);
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal ambil artikel' });
-        }
-    });
+// Endpoint untuk memperbarui artikel.
+app.put('/api/articles/:id', upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, content, meta_title, meta_description, image_alt } = req.body;
+        const file = req.file;
 
-    // Endpoint untuk mengambil satu artikel berdasarkan slug.
-    app.get('/api/articles/:slug', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM articles WHERE slug = ?', [req.params.slug]);
-            if (rows.length === 0) return res.status(404).json({ message: 'Artikel tidak ditemukan' });
-            res.json(rows[0]);
-        } catch (error) {
-            res.status(500).json({ message: 'Error server' });
-        }
-    });
+        let sql = 'UPDATE articles SET title=?, content=?, meta_title=?, meta_description=?, image_alt=?';
+        const values = [title, content, meta_title, meta_description, image_alt];
 
-    // Endpoint untuk menambah artikel baru.
-    app.post('/api/articles', upload.single('image'), async (req, res) => {
-        try {
-            const { title, content, meta_title, meta_description, image_alt } = req.body;
-            const file = req.file;
-            const image_url = file ? file.filename : null;
-            
-            // Buat slug unik dari judul.
-            const slug = createSlug(title) + '-' + Math.floor(Math.random() * 1000);
-
-            const sql = `INSERT INTO articles (title, slug, content, image_url, meta_title, meta_description, image_alt) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-            await db.query(sql, [title, slug, content, image_url, meta_title, meta_description, image_alt]);
-
-            res.json({ message: 'Artikel berhasil diterbitkan!' });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Gagal posting artikel' });
-        }
-    });
-
-    // Endpoint untuk memperbarui artikel.
-    app.put('/api/articles/:id', upload.single('image'), async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { title, content, meta_title, meta_description, image_alt } = req.body;
-            const file = req.file;
-
-            let sql = 'UPDATE articles SET title=?, content=?, meta_title=?, meta_description=?, image_alt=?';
-            const values = [title, content, meta_title, meta_description, image_alt];
-
-            // Jika ada file gambar baru, hapus yang lama dan perbarui.
-            if (file) {
-                const [rows] = await db.query('SELECT image_url FROM articles WHERE id = ?', [id]);
-                if (rows.length > 0 && rows[0].image_url) {
-                    const oldImagePath = path.join(__dirname, 'uploads', rows[0].image_url);
-                    if (fs.existsSync(oldImagePath)) {
-                        fs.unlinkSync(oldImagePath);
-                    }
-                }
-
-                // Tambahkan nama file baru ke query.
-                sql += ', image_url=?';
-                values.push(file.filename);
-            }
-
-            sql += ' WHERE id=?';
-            values.push(id);
-
-            await db.query(sql, values);
-
-            res.json({ message: 'Artikel berhasil diperbarui!' });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Gagal update artikel' });
-        }
-    });
-
-    // Endpoint untuk menghapus artikel.
-    app.delete('/api/articles/:id', async (req, res) => {
-        try {
-            const { id } = req.params;
-
-            // Ambil URL gambar untuk dihapus dari storage.
+        // Jika ada file gambar baru, hapus yang lama dan perbarui.
+        if (file) {
             const [rows] = await db.query('SELECT image_url FROM articles WHERE id = ?', [id]);
-
-            // Jika gambar ada, hapus dari direktori 'uploads'.
             if (rows.length > 0 && rows[0].image_url) {
-                const imagePath = path.join(__dirname, 'uploads', rows[0].image_url);
-                if (fs.existsSync(imagePath)) {
-                    fs.unlinkSync(imagePath);
+                const oldImagePath = path.join(__dirname, 'uploads', rows[0].image_url);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
                 }
             }
 
-            // Hapus record artikel dari database.
-            await db.query('DELETE FROM articles WHERE id = ?', [id]);
-            res.json({ message: 'Artikel berhasil dihapus' });
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal menghapus artikel' });
+            // Tambahkan nama file baru ke query.
+            sql += ', image_url=?';
+            values.push(file.filename);
         }
-    });
 
-    // ================= Pengaturan Website (SEO & Umum) =================
+        sql += ' WHERE id=?';
+        values.push(id);
 
-    // Endpoint untuk mengambil pengaturan website (publik).
-    app.get('/api/settings', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM settings WHERE id = 1');
-            if (rows.length > 0) {
-                res.json(rows[0]);
-            } else {
-                // Berikan pengaturan default jika tidak ada di database.
-                res.json({ 
-                    site_name: 'Penyalur Pembantu Indonesia', 
-                    meta_description: '', 
-                    google_verification_code: '' 
-                });
+        await db.query(sql, values);
+
+        res.json({ message: 'Artikel berhasil diperbarui!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal update artikel' });
+    }
+});
+
+// Endpoint untuk menghapus artikel.
+app.delete('/api/articles/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Ambil URL gambar untuk dihapus dari storage.
+        const [rows] = await db.query('SELECT image_url FROM articles WHERE id = ?', [id]);
+
+        // Jika gambar ada, hapus dari direktori 'uploads'.
+        if (rows.length > 0 && rows[0].image_url) {
+            const imagePath = path.join(__dirname, 'uploads', rows[0].image_url);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
             }
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal mengambil pengaturan' });
         }
-    });
 
-    // Endpoint untuk memperbarui pengaturan website (hanya superadmin).
-    app.put('/api/settings', verifyToken('superadmin'), async (req, res) => {
-        try {
-            const { site_name, meta_description, meta_keywords, google_verification_code } = req.body;
-            
-            // Cek apakah record pengaturan dengan id=1 sudah ada.
-            const [check] = await db.query('SELECT id FROM settings WHERE id = 1');
-            
-            if (check.length === 0) {
-                // Jika tidak ada, buat record baru.
-                await db.query(
-                    'INSERT INTO settings (id, site_name, meta_description, meta_keywords, google_verification_code) VALUES (1, ?, ?, ?, ?)',
-                    [site_name, meta_description, meta_keywords, google_verification_code]
-                );
-            } else {
-                // Jika sudah ada, perbarui record tersebut.
-                await db.query(
-                    'UPDATE settings SET site_name=?, meta_description=?, meta_keywords=?, google_verification_code=? WHERE id=1',
-                    [site_name, meta_description, meta_keywords, google_verification_code]
-                );
-            }
+        // Hapus record artikel dari database.
+        await db.query('DELETE FROM articles WHERE id = ?', [id]);
+        res.json({ message: 'Artikel berhasil dihapus' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal menghapus artikel' });
+    }
+});
 
-            res.json({ message: 'Pengaturan berhasil disimpan!' });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Gagal menyimpan pengaturan' });
-        }
-    });
+// ================= Pengaturan Website (SEO & Umum) =================
 
-    // ================= Manajemen SEO per Halaman (Page SEO) =================
-
-    // Endpoint untuk mengambil data SEO untuk semua halaman.
-    app.get('/api/page-seo', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM page_seo');
-            res.json(rows);
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal mengambil data SEO halaman' });
-        }
-    });
-
-    // Endpoint untuk mengambil data SEO untuk satu halaman spesifik berdasarkan nama.
-    app.get('/api/page-seo/:page_name', async (req, res) => {
-        try {
-            const [rows] = await db.query('SELECT * FROM page_seo WHERE page_name = ?', [req.params.page_name]);
-            if (rows.length > 0) {
-                res.json(rows[0]);
-            } else {
-                res.status(404).json({ message: 'Data SEO untuk halaman ini tidak ditemukan' });
-            }
-        } catch (error) {
-            res.status(500).json({ message: 'Terjadi kesalahan pada server' });
-        }
-    });
-
-    // Endpoint untuk memperbarui data SEO sebuah halaman (hanya superadmin).
-    app.put('/api/page-seo/:page_name', verifyToken('superadmin'), async (req, res) => {
-        try {
-            const { meta_title, meta_description, meta_keywords } = req.body;
-            const { page_name } = req.params;
-
-            await db.query('UPDATE page_seo SET meta_title=?, meta_description=?, meta_keywords=? WHERE page_name=?', [meta_title, meta_description, meta_keywords, page_name]);
-            res.json({ message: 'Data SEO halaman berhasil diperbarui!' });
-        } catch (error) {
-            res.status(500).json({ message: 'Gagal memperbarui SEO halaman' });
-        }
-    });
-
-    // ================= Sitemap & Robots.txt =================
-
-    // Endpoint untuk menyajikan robots.txt dari folder build client
-    app.get('/robots.txt', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/dist/robots.txt'));
-    });
-
-    // Endpoint untuk generate sitemap.xml secara dinamis
-    app.get('/sitemap.xml', async (req, res) => {
-        res.header('Content-Type', 'application/xml');
-        const baseUrl = process.env.SITE_URL || 'https://www.halopekerja.com';
-
-        try {
-            const links = [];
-
-            // 1. Halaman Statis
-            const staticPages = [
-                { url: '/', changefreq: 'daily', priority: 1.0 },
-                { url: '/pekerja', changefreq: 'daily', priority: 0.9 },
-                { url: '/artikel', changefreq: 'weekly', priority: 0.8 },
-                { url: '/tentang-kami', changefreq: 'monthly', priority: 0.7 },
-                { url: '/kontak', changefreq: 'monthly', priority: 0.7 },
-            ];
-            staticPages.forEach(page => links.push(page));
-
-            // 2. Halaman Dinamis: Pekerja
-            const [workers] = await db.query('SELECT id, updated_at FROM workers');
-            workers.forEach(worker => {
-                links.push({
-                    url: `/pekerja/${worker.id}`,
-                    changefreq: 'weekly',
-                    priority: 0.8,
-                    lastmod: worker.updated_at,
-                });
+// Endpoint untuk mengambil pengaturan website (publik).
+app.get('/api/settings', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM settings WHERE id = 1');
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            // Berikan pengaturan default jika tidak ada di database.
+            res.json({ 
+                site_name: 'Penyalur Pembantu Indonesia', 
+                meta_description: '', 
+                google_verification_code: '' 
             });
-
-            // 3. Halaman Dinamis: Artikel
-            const [articles] = await db.query('SELECT slug, updated_at FROM articles');
-            articles.forEach(article => {
-                links.push({
-                    url: `/artikel/${article.slug}`,
-                    changefreq: 'monthly',
-                    priority: 0.7,
-                    lastmod: article.updated_at,
-                });
-            });
-
-            const stream = new SitemapStream({ hostname: baseUrl });
-            const xml = await streamToPromise(Readable.from(links).pipe(stream));
-            
-            res.send(xml.toString());
-
-        } catch (error) {
-            console.error('Gagal membuat sitemap:', error);
-            res.status(500).send('Error generating sitemap');
         }
-    });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal mengambil pengaturan' });
+    }
+});
 
-    // 1. Sajikan file statis dari folder build React (client/dist)
-    // Pastikan Anda sudah menjalankan 'npm run build' di folder client
-    app.use(express.static(path.join(__dirname, '../client/dist'), { index: false }));
-
-    // 2. Middleware Uploads (Tetap ada, posisinya sudah benar di atas)
-    // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-    // 3. HANDLE SEMUA REQUEST FRONTEND & INJECT META TAG
-    app.get('*', async (req, res, next) => {
-        // Jika request adalah untuk API atau file uploads, abaikan handler ini
-        if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-            return next();
+// Endpoint untuk memperbarui pengaturan website (hanya superadmin).
+app.put('/api/settings', verifyToken('superadmin'), async (req, res) => {
+    try {
+        const { site_name, meta_description, meta_keywords, google_verification_code } = req.body;
+        
+        // Cek apakah record pengaturan dengan id=1 sudah ada.
+        const [check] = await db.query('SELECT id FROM settings WHERE id = 1');
+        
+        if (check.length === 0) {
+            // Jika tidak ada, buat record baru.
+            await db.query(
+                'INSERT INTO settings (id, site_name, meta_description, meta_keywords, google_verification_code) VALUES (1, ?, ?, ?, ?)',
+                [site_name, meta_description, meta_keywords, google_verification_code]
+            );
+        } else {
+            // Jika sudah ada, perbarui record tersebut.
+            await db.query(
+                'UPDATE settings SET site_name=?, meta_description=?, meta_keywords=?, google_verification_code=? WHERE id=1',
+                [site_name, meta_description, meta_keywords, google_verification_code]
+            );
         }
 
-        try {
-            // Ambil path ke file index.html hasil build React
-            const indexPath = path.join(__dirname, '../client/dist/index.html');
+        res.json({ message: 'Pengaturan berhasil disimpan!' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal menyimpan pengaturan' });
+    }
+});
 
-            // Baca file index.html
-            fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
-                if (err) {
-                    console.error('Error reading index.html', err);
-                    return res.status(500).send('Terjadi kesalahan server.');
+// ================= Manajemen SEO per Halaman (Page SEO) =================
+
+// Endpoint untuk mengambil data SEO untuk semua halaman.
+app.get('/api/page-seo', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM page_seo');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal mengambil data SEO halaman' });
+    }
+});
+
+// Endpoint untuk mengambil data SEO untuk satu halaman spesifik berdasarkan nama.
+app.get('/api/page-seo/:page_name', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM page_seo WHERE page_name = ?', [req.params.page_name]);
+        if (rows.length > 0) {
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ message: 'Data SEO untuk halaman ini tidak ditemukan' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+    }
+});
+
+// Endpoint untuk memperbarui data SEO sebuah halaman (hanya superadmin).
+app.put('/api/page-seo/:page_name', verifyToken('superadmin'), async (req, res) => {
+    try {
+        const { meta_title, meta_description, meta_keywords } = req.body;
+        const { page_name } = req.params;
+
+        await db.query('UPDATE page_seo SET meta_title=?, meta_description=?, meta_keywords=? WHERE page_name=?', [meta_title, meta_description, meta_keywords, page_name]);
+        res.json({ message: 'Data SEO halaman berhasil diperbarui!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal memperbarui SEO halaman' });
+    }
+});
+
+// ================= Sitemap & Robots.txt =================
+
+// Endpoint untuk menyajikan robots.txt dari folder build client
+app.get('/robots.txt', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/robots.txt'));
+});
+
+// 1. Sajikan file statis dari folder build React (client/dist)
+// Pastikan Anda sudah menjalankan 'npm run build' di folder client
+app.use(express.static(path.join(__dirname, '../client/dist'), { index: false }));
+
+// 3. HANDLE SEMUA REQUEST FRONTEND & INJECT META TAG
+app.get('*', async (req, res, next) => {
+    // Jika request adalah untuk API atau file uploads, abaikan handler ini
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return next();
+    }
+
+    try {
+        // Ambil path ke file index.html hasil build React
+        const indexPath = path.join(__dirname, '../client/dist/index.html');
+
+        // Baca file index.html
+        fs.readFile(indexPath, 'utf8', async (err, htmlData) => {
+            if (err) {
+                console.error('Error reading index.html', err);
+                return res.status(500).send('Terjadi kesalahan server.');
+            }
+
+            // Ambil kode verifikasi dari Database
+            let verificationTag = '';
+            try {
+                const [rows] = await db.query('SELECT google_verification_code FROM settings WHERE id = 1');
+                if (rows.length > 0 && rows[0].google_verification_code) {
+                    // Buat string meta tag lengkap
+                    verificationTag = `<meta name="google-site-verification" content="${rows[0].google_verification_code}" />`;
                 }
+            } catch (dbError) {
+                console.error('Database error:', dbError);
+            }
 
-                // Ambil kode verifikasi dari Database
-                let verificationTag = '';
-                try {
-                    const [rows] = await db.query('SELECT google_verification_code FROM settings WHERE id = 1');
-                    if (rows.length > 0 && rows[0].google_verification_code) {
-                        // Buat string meta tag lengkap
-                        verificationTag = `<meta name="google-site-verification" content="${rows[0].google_verification_code}" />`;
-                    }
-                } catch (dbError) {
-                    console.error('Database error:', dbError);
-                }
+            // Ganti Placeholder dengan Meta Tag Asli
+            const finalHtml = htmlData.replace('</head>', `${verificationTag}</head>`);
 
-                // Ganti Placeholder dengan Meta Tag Asli
-                const finalHtml = htmlData.replace('</head>', `${verificationTag}</head>`);
+            // Kirim HTML yang sudah dimodifikasi ke browser/Google Bot
+            res.send(finalHtml);
+        });
+    } catch (error) {
+        next(error);
+    }
+});
 
-                // Kirim HTML yang sudah dimodifikasi ke browser/Google Bot
-                res.send(finalHtml);
-            });
-        } catch (error) {
-            next(error);
-        }
-    });
-
-    // --- Menjalankan Server ---
-    app.listen(PORT, () => {
-        console.log(`🚀 Server berjalan di port ${PORT}`);
-    });
+// --- Menjalankan Server ---
+app.listen(PORT, () => {
+    console.log(`🚀 Server berjalan di port ${PORT}`);
+});
