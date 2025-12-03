@@ -31,11 +31,6 @@ export default function PublicLayout() {
         {settings.meta_description && <meta name="description" content={settings.meta_description} />}
         {settings.meta_keywords && <meta name="keywords" content={settings.meta_keywords} />}
         
-        {/* GOOGLE SEARCH CONSOLE VERIFICATION CODE */}
-        {/* Pastikan hanya merender jika kodenya ada */}
-        {settings.google_verification_code && (
-            <meta name="google-site-verification" content={settings.google_verification_code} />
-        )}
       </Helmet>
 
       <Header />
