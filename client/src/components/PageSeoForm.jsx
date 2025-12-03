@@ -13,15 +13,12 @@ export default function PageSeoForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Pastikan menggunakan URL API Production
   const API_URL = 'https://api.halopekerja.com';
 
-  // 1. Ambil daftar halaman dari database saat komponen dimuat
   useEffect(() => {
     axios.get(`${API_URL}/api/page-seo`)
       .then(res => {
         setPages(res.data);
-        // Jika ada data, otomatis pilih halaman pertama
         if (res.data.length > 0) {
             handleSelectPage(res.data[0]);
         }
@@ -32,10 +29,8 @@ export default function PageSeoForm() {
       });
   }, []);
 
-  // 2. Fungsi saat tombol halaman di sidebar diklik
   const handleSelectPage = (page) => {
     setSelectedPage(page);
-    // Isi form dengan data dari halaman yang dipilih (gunakan string kosong jika null)
     setFormData({
         meta_title: page.meta_title || "",
         meta_description: page.meta_description || "",
@@ -43,19 +38,25 @@ export default function PageSeoForm() {
     });
   };
 
-  // 3. Fungsi Simpan Perubahan
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedPage) return;
 
     setIsLoading(true);
+    
+    // AMBIL TOKEN DARI LOCALSTORAGE
+    const token = localStorage.getItem("token");
+
     try {
-      // Kirim data update ke server
-      await axios.put(`${API_URL}/api/page-seo/${selectedPage.page_name}`, formData);
+      // SERTAKAN HEADER AUTHORIZATION DI SINI
+      await axios.put(`${API_URL}/api/page-seo/${selectedPage.page_name}`, formData, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+      });
       
       toast.success(`SEO untuk halaman ${selectedPage.page_name} tersimpan!`);
       
-      // Update state lokal 'pages' agar data di sidebar juga terbarui tanpa refresh
       const updatedPages = pages.map(p => 
         p.page_name === selectedPage.page_name ? { ...p, ...formData } : p
       );
@@ -63,7 +64,8 @@ export default function PageSeoForm() {
       
     } catch (error) {
       console.error(error);
-      toast.error("Gagal menyimpan perubahan.");
+      const msg = error.response?.data?.message || "Gagal menyimpan perubahan.";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +79,7 @@ export default function PageSeoForm() {
 
       <div className="flex flex-col md:flex-row gap-6">
           
-          {/* --- SIDEBAR KIRI: DAFTAR HALAMAN --- */}
+          {/* SIDEBAR KIRI */}
           <div className="w-full md:w-1/3 space-y-2">
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pilih Halaman</p>
             {pages.map(page => (
@@ -90,14 +92,13 @@ export default function PageSeoForm() {
                         : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                     }`}
                 >
-                    {/* Ubah 'home' jadi 'Home' */}
                     {page.page_name.charAt(0).toUpperCase() + page.page_name.slice(1)}
                 </button>
             ))}
             {pages.length === 0 && <p className="text-sm text-slate-400 italic">Belum ada data halaman.</p>}
           </div>
 
-          {/* --- KANAN: FORM EDITOR --- */}
+          {/* KANAN: FORM EDITOR */}
           <div className="w-full md:w-2/3 bg-slate-50 p-5 rounded-xl border border-slate-200">
              {selectedPage ? (
                  <form onSubmit={handleSubmit} className="space-y-4">
@@ -112,7 +113,7 @@ export default function PageSeoForm() {
                             value={formData.meta_title} 
                             onChange={e => setFormData({...formData, meta_title: e.target.value})}
                             className="w-full p-2 border rounded bg-white focus:ring-2 focus:ring-purple-500 outline-none"
-                            placeholder="Contoh: Beranda - Penyalur Pembantu Indonesia"
+                            placeholder="Judul Halaman di Google"
                         />
                     </div>
 
@@ -123,7 +124,7 @@ export default function PageSeoForm() {
                             value={formData.meta_description} 
                             onChange={e => setFormData({...formData, meta_description: e.target.value})}
                             className="w-full p-2 border rounded bg-white focus:ring-2 focus:ring-purple-500 outline-none"
-                            placeholder="Deskripsi singkat yang menarik untuk hasil pencarian..."
+                            placeholder="Deskripsi singkat halaman ini..."
                         ></textarea>
                     </div>
 
@@ -134,7 +135,7 @@ export default function PageSeoForm() {
                             value={formData.meta_keywords} 
                             onChange={e => setFormData({...formData, meta_keywords: e.target.value})}
                             className="w-full p-2 border rounded bg-white focus:ring-2 focus:ring-purple-500 outline-none"
-                            placeholder="Kata kunci, dipisahkan dengan koma"
+                            placeholder="Kata kunci, dipisah koma"
                         />
                     </div>
 
