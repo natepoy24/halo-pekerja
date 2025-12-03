@@ -1,13 +1,15 @@
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const db = require('./database');
+// 1. WAJIB DI PALING ATAS
+require('dotenv').config(); 
+
+const express = require('express'); // Framework web untuk Node.js.
+const cors = require('cors'); // Middleware untuk mengaktifkan Cross-Origin Resource Sharing.
+const multer = require('multer'); // Middleware untuk menangani `multipart/form-data`, digunakan untuk upload file.
+const path = require('path'); // Modul Node.js untuk bekerja dengan path file dan direktori.
+const fs = require('fs'); // Modul Node.js untuk berinteraksi dengan sistem file.
+// 2. Database diload setelah dotenv, jadi aman
+const db = require('./database'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -533,21 +535,19 @@ app.put('/api/page-seo/:page_name', verifyToken('superadmin'), async (req, res) 
         res.status(500).json({ message: 'Gagal memperbarui SEO halaman' });
     }
 });
-
-// ================= Sitemap & Robots.txt =================
-
-// Endpoint untuk menyajikan robots.txt dari folder build client
-app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/robots.txt'));
-});
+ 
+// ================= PERUBAHAN PENTING DI SINI =================
 
 // 1. Sajikan file statis dari folder build React (client/dist)
 // Pastikan Anda sudah menjalankan 'npm run build' di folder client
 app.use(express.static(path.join(__dirname, '../client/dist'), { index: false }));
 
+// 2. Middleware Uploads (Tetap ada)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // 3. HANDLE SEMUA REQUEST FRONTEND & INJECT META TAG
-app.get('*', async (req, res, next) => {
-    // Jika request adalah untuk API atau file uploads, abaikan handler ini
+app.get('/*', async (req, res, next) => {
+    // Jika request adalah untuk API, abaikan handler ini (lanjut ke route API di bawah atau 404)
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
         return next();
     }
