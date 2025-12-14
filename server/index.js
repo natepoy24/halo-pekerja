@@ -573,7 +573,7 @@ app.get(/.*/, async (req, res, next) => {
     }
 });
 
-// --- Menjalankan Server ---
 app.listen(PORT, () => {
+// --- Menjalankan Server ---
     console.log(`🚀 Server running on port ${PORT}`);
 });
