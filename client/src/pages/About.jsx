@@ -32,18 +32,18 @@ export default function About() {
           </p>
         </div>
       </div>
-      
+
       {/* ... lanjutkan sisa komponen section lainnya ... */}
-       <section className="py-16 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
           <div className="relative">
-             <div className="aspect-video bg-slate-200 rounded-2xl overflow-hidden shadow-lg">
-                <img src="/hero-tentang.jpeg" alt="Tim Penyalur Pembantu" className="w-full h-full object-cover" />
-             </div>
-             <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-xl border border-slate-100 hidden md:block">
-                <p className="text-purple-700 font-bold text-2xl">10+</p>
-                <p className="text-slate-500 text-sm">Tahun Pengalaman</p>
-             </div>
+            <div className="aspect-video bg-slate-200 rounded-2xl overflow-hidden shadow-lg">
+              <img src="/hero-tentang.jpeg" alt="Tim Penyalur Pembantu" className="w-full h-full object-cover" />
+            </div>
+            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-xl border border-slate-100 hidden md:block">
+              <p className="text-purple-700 font-bold text-2xl">10+</p>
+              <p className="text-slate-500 text-sm">Tahun Pengalaman</p>
+            </div>
           </div>
           <div>
             <h2 className="text-3xl font-bold text-slate-800 mb-6">Mitra Keluarga Terpercaya</h2>
@@ -54,18 +54,18 @@ export default function About() {
               Kami bukan sekadar agen penyalur. Kami adalah mitra yang melakukan seleksi ketat, verifikasi latar belakang, dan pelatihan dasar untuk memastikan setiap tenaga kerja yang kami tempatkan siap memberikan pelayanan terbaik dengan hati.
             </p>
             <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 text-slate-700">
-                    <ShieldCheck className="text-green-500" size={24} />
-                    <span>Verifikasi identitas & latar belakang ketat.</span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-700">
-                    <Heart className="text-red-500" size={24} />
-                    <span>Pelayanan berbasis empati dan kekeluargaan.</span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-700">
-                    <Target className="text-blue-500" size={24} />
-                    <span>Garansi penggantian jika tidak cocok.</span>
-                </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <ShieldCheck className="text-green-500" size={24} />
+                <span>Verifikasi identitas & latar belakang ketat.</span>
+              </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <Heart className="text-red-500" size={24} />
+                <span>Pelayanan berbasis empati dan kekeluargaan.</span>
+              </div>
+              <div className="flex items-center gap-3 text-slate-700">
+                <Target className="text-blue-500" size={24} />
+                <span>Garansi penggantian jika tidak cocok.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -74,36 +74,36 @@ export default function About() {
       {/* Visi Misi */}
       <section className="py-16 bg-purple-50">
         <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-slate-800">Visi & Misi</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-800">Visi & Misi</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-purple-100 text-center hover:-translate-y-1 transition">
+              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users size={32} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-800">Visi Kami</h3>
+              <p className="text-slate-600 text-sm">
+                Menjadi perusahaan penempatan tenaga kerja rumah tangga terdepan di Indonesia yang dikenal karena integritas, kualitas, dan kemanusiaan.
+              </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-white p-8 rounded-xl shadow-sm border border-purple-100 text-center hover:-translate-y-1 transition">
-                    <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Users size={32} />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-slate-800">Visi Kami</h3>
-                    <p className="text-slate-600 text-sm">
-                        Menjadi perusahaan penempatan tenaga kerja rumah tangga terdepan di Indonesia yang dikenal karena integritas, kualitas, dan kemanusiaan.
-                    </p>
-                </div>
-                <div className="bg-white p-8 rounded-xl shadow-sm border border-purple-100 text-center hover:-translate-y-1 transition md:col-span-2">
-                    <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Target size={32} />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-slate-800">Misi Kami</h3>
-                    <div className="grid md:grid-cols-2 gap-4 text-left text-slate-600 text-sm">
-                        <ul className="space-y-2">
-                            <li>• Menyediakan tenaga kerja yang terlatih, jujur, dan bertanggung jawab.</li>
-                            <li>• Memberikan perlindungan dan kesejahteraan yang layak bagi tenaga kerja.</li>
-                        </ul>
-                        <ul className="space-y-2">
-                            <li>• Membangun hubungan harmonis antara pengguna jasa dan tenaga kerja.</li>
-                            <li>• Terus meningkatkan standar pelayanan melalui evaluasi berkala.</li>
-                        </ul>
-                    </div>
-                </div>
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-purple-100 text-center hover:-translate-y-1 transition md:col-span-2">
+              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Target size={32} />
+              </div>
+              <h3 className="text-xl font-bold mb-3 text-slate-800">Misi Kami</h3>
+              <div className="grid md:grid-cols-2 gap-4 text-left text-slate-600 text-sm">
+                <ul className="space-y-2">
+                  <li>• Menyediakan tenaga kerja yang terlatih, jujur, dan bertanggung jawab.</li>
+                  <li>• Memberikan perlindungan dan kesejahteraan yang layak bagi tenaga kerja.</li>
+                </ul>
+                <ul className="space-y-2">
+                  <li>• Membangun hubungan harmonis antara pengguna jasa dan tenaga kerja.</li>
+                  <li>• Terus meningkatkan standar pelayanan melalui evaluasi berkala.</li>
+                </ul>
+              </div>
             </div>
+          </div>
         </div>
       </section>
 
@@ -125,22 +125,22 @@ export default function About() {
       {/* --- FAQ SECTION --- */}
       <section id="faq-about" className="py-16 bg-slate-50">
         <div className="max-w-4xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-slate-800 mb-10">Pertanyaan Seputar Perusahaan</h2>
-            <FaqAccordion items={faqItemsAbout} />
+          <h2 className="text-3xl font-bold text-center text-slate-800 mb-10">Pertanyaan Seputar Perusahaan</h2>
+          <FaqAccordion items={faqItemsAbout} />
         </div>
       </section>
 
       {/* CTA */}
       <section className="py-20 bg-white text-center">
         <div className="max-w-3xl mx-auto px-4">
-            <h2 className="text-3xl font-bold text-slate-800 mb-6">Siap Menemukan Partner Terbaik untuk Keluarga Anda?</h2>
-            <p className="text-slate-600 mb-8">Jangan ragu untuk berkonsultasi dengan kami. Tim kami siap membantu mencarikan kandidat yang paling sesuai dengan kebutuhan spesifik rumah tangga Anda.</p>
-            <button 
-                onClick={() => window.open("https://wa.me/6285781823040", "_blank")} 
-                className="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-full font-bold hover:bg-purple-700 transition shadow-lg"
-            >
-                Hubungi Kami Sekarang <ArrowRight size={20} />
-            </button>
+          <h2 className="text-3xl font-bold text-slate-800 mb-6">Siap Menemukan Partner Terbaik untuk Keluarga Anda?</h2>
+          <p className="text-slate-600 mb-8">Jangan ragu untuk berkonsultasi dengan kami. Tim kami siap membantu mencarikan kandidat yang paling sesuai dengan kebutuhan spesifik rumah tangga Anda.</p>
+          <button
+            onClick={() => window.open("https://wa.me/628139511409", "_blank")}
+            className="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-full font-bold hover:bg-purple-700 transition shadow-lg"
+          >
+            Hubungi Kami Sekarang <ArrowRight size={20} />
+          </button>
         </div>
       </section>
     </>

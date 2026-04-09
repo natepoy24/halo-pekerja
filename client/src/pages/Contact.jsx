@@ -10,8 +10,8 @@ export default function Contact() {
     e.preventDefault();
     const nama = e.target.nama.value;
     const pesan = e.target.pesan.value;
-    
-    const waLink = `https://wa.me/6285781823040?text=Halo admin, saya ${nama}. ${pesan}`;
+
+    const waLink = `https://wa.me/628139511409?text=Halo admin, saya ${nama}. ${pesan}`;
     window.open(waLink, "_blank");
   };
 
@@ -33,7 +33,7 @@ export default function Contact() {
 
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-12">
-          
+
           <div className="space-y-8">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Informasi Kantor</h2>
@@ -83,13 +83,13 @@ export default function Contact() {
             </div>
 
             <div className="rounded-2xl overflow-hidden shadow-lg h-64 border border-slate-200">
-              <iframe 
+              <iframe
                 title="Peta Lokasi"
                 src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7930.797266400214!2d106.815783!3d-6.342389!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x36341c827e7837b%3A0x57c9ffc62718191c!2sPenyalur%20pembantu%20indonesia!5e0!3m2!1sid!2sid!4v1763853318507!5m2!1sid!2sid"
-                width="100%" 
-                height="100%" 
-                style={{ border: 0 }} 
-                allowFullScreen="" 
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
@@ -99,7 +99,7 @@ export default function Contact() {
           <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 h-fit">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Kirim Pesan</h2>
             <p className="text-slate-500 mb-6">Isi formulir di bawah ini, tim kami akan segera membalas via WhatsApp.</p>
-            
+
             <form onSubmit={handleSendMessage} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
@@ -108,18 +108,18 @@ export default function Contact() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">No. WhatsApp</label>
-                    <input type="tel" name="hp" required className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" placeholder="08..." />
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">No. WhatsApp</label>
+                  <input type="tel" name="hp" required className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" placeholder="08..." />
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1">Kategori</label>
-                    <select className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none bg-white">
-                        <option>Umum</option>
-                        <option>Cari ART</option>
-                        <option>Cari Baby Sitter</option>
-                        <option>Cari Perawat Lansia</option>
-                        <option>Komplain</option>
-                    </select>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Kategori</label>
+                  <select className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none bg-white">
+                    <option>Umum</option>
+                    <option>Cari ART</option>
+                    <option>Cari Baby Sitter</option>
+                    <option>Cari Perawat Lansia</option>
+                    <option>Komplain</option>
+                  </select>
                 </div>
               </div>
 

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet-async";
-import { 
-  MapPin, Briefcase, User, Star, Heart, AlertCircle, 
-  CheckCircle, MessageCircle, ArrowLeft, DollarSign 
+import {
+  MapPin, Briefcase, User, Star, Heart, AlertCircle,
+  CheckCircle, MessageCircle, ArrowLeft, DollarSign
 } from "lucide-react";
 
 export default function WorkerDetail() {
@@ -30,7 +30,7 @@ export default function WorkerDetail() {
 
   const handleContact = () => {
     if (!worker) return;
-    const phoneNumber = "6285781823040"; // Nomor WA Admin
+    const phoneNumber = "628139511409"; // Nomor WA Admin
     const message = `Halo Admin, saya ingin merekrut pekerja ini:\n\nNama: ${worker.name}\nID: ${worker.id}\nKategori: ${worker.category}\n\nApakah masih tersedia?`;
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
   };
@@ -72,12 +72,12 @@ export default function WorkerDetail() {
         <title>{`${worker.name} - ${worker.category} | Penyalur Pembantu Indonesia`}</title>
         <meta name="description" content={`Profil lengkap ${worker.name}, seorang ${worker.category} berpengalaman dari ${worker.origin}. Lihat detail keahlian, pengalaman, dan gaji. Siap bekerja untuk area Jabodetabek.`} />
         <meta name="keywords" content={`${worker.category}, ${worker.name}, cari ${worker.category.toLowerCase()}, penyalur ${worker.category.toLowerCase()}, ${worker.origin}, pekerja rumah tangga`} />
-        
+
         {/* Open Graph Tags untuk Media Sosial */}
         <meta property="og:title" content={`${worker.name} - ${worker.category}`} />
         <meta property="og:description" content={worker.description || `Profil lengkap ${worker.name}, seorang ${worker.category} berpengalaman.`} />
         {worker.photo_url && <meta property="og:image" content={`https://api.halopekerja.com/uploads/${worker.photo_url}`} />}
-        
+
         {/* Structured Data (JSON-LD) */}
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
@@ -86,14 +86,14 @@ export default function WorkerDetail() {
 
       <div className="min-h-screen bg-slate-50 font-sans py-12 px-4">
         <div className="max-w-5xl mx-auto">
-          
+
           {/* Breadcrumb / Back Button */}
           <Link to="/#katalog" className="inline-flex items-center gap-2 text-slate-500 hover:text-purple-700 mb-6 font-medium transition">
             <ArrowLeft size={20} /> Kembali ke Daftar
           </Link>
 
           <div className="grid md:grid-cols-3 gap-8">
-            
+
             {/* --- SIDEBAR KIRI (FOTO & CTA) --- */}
             <div className="md:col-span-1">
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sticky top-24">
@@ -101,8 +101,8 @@ export default function WorkerDetail() {
                   {worker.photo_url ? (
                     <img
                       src={`https://api.halopekerja.com/uploads/${worker.photo_url}`}
-                      alt={worker.name} 
-                      className="w-full h-full object-cover" 
+                      alt={worker.name}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-400">
@@ -121,7 +121,7 @@ export default function WorkerDetail() {
                   <span className="text-sm text-slate-400 font-normal">/bulan</span>
                 </div>
 
-                <button 
+                <button
                   onClick={handleContact}
                   disabled={worker.status !== 'Tersedia'}
                   className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white py-3 rounded-xl font-bold shadow-lg shadow-purple-200 transition flex items-center justify-center gap-2"
@@ -137,7 +137,7 @@ export default function WorkerDetail() {
 
             {/* --- KONTEN KANAN (DETAIL DATA) --- */}
             <div className="md:col-span-2 space-y-6">
-              
+
               {/* Header Info */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
@@ -185,7 +185,7 @@ export default function WorkerDetail() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                      <User size={18} className="text-purple-600"/> Data Pribadi
+                      <User size={18} className="text-purple-600" /> Data Pribadi
                     </h4>
                     <ul className="space-y-2 text-sm text-slate-600">
                       <li className="flex justify-between border-b border-slate-50 pb-2">
@@ -200,11 +200,11 @@ export default function WorkerDetail() {
                       </li>
                     </ul>
                   </div>
-                  
+
                   {/* Keahlian (Skills) */}
                   <div>
                     <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                      <Briefcase size={18} className="text-purple-600"/> Keahlian Utama
+                      <Briefcase size={18} className="text-purple-600" /> Keahlian Utama
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       {worker.skills ? worker.skills.split(',').map((skill, idx) => (

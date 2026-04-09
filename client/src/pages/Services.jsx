@@ -48,7 +48,7 @@ export default function Services() {
 
   return (
     <div className="bg-slate-50 font-sans text-slate-800">
-      
+
       <Helmet>
         <title>{seo?.meta_title || "Layanan Kami | Penyalur ART & Baby Sitter"}</title>
         <meta name="description" content={seo?.meta_description || "Daftar layanan dan estimasi gaji PRT, Baby Sitter, dan Perawat Lansia."} />
@@ -68,14 +68,14 @@ export default function Services() {
           <div key={service.id} className={`flex flex-col md:flex-row gap-10 items-center ${index % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
             <div className="w-full md:w-1/2">
               <div className="aspect-square rounded-2xl overflow-hidden shadow-xl border-4 border-white relative group">
-                <img 
-                  src={service.image} 
-                  alt={`Layanan ${service.title} Profesional`} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                <img
+                  src={service.image}
+                  alt={`Layanan ${service.title} Profesional`}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm">
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wide">Estimasi Gaji 2025</p>
-                    <p className="text-purple-700 font-bold text-lg">{service.salaryRange}</p>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wide">Estimasi Gaji 2025</p>
+                  <p className="text-purple-700 font-bold text-lg">{service.salaryRange}</p>
                 </div>
               </div>
             </div>
@@ -90,20 +90,20 @@ export default function Services() {
 
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
                 <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <CheckCircle className="text-green-500" size={20}/> Tugas & Tanggung Jawab:
+                  <CheckCircle className="text-green-500" size={20} /> Tugas & Tanggung Jawab:
                 </h3>
                 <ul className="space-y-3">
-                    {service.tasks.map((task, i) => (
-                        <li key={i} className="flex items-start gap-3 text-slate-600 text-sm">
-                            <span className="mt-1.5 w-1.5 h-1.5 bg-purple-400 rounded-full flex-shrink-0"></span>
-                            {task}
-                        </li>
-                    ))}
+                  {service.tasks.map((task, i) => (
+                    <li key={i} className="flex items-start gap-3 text-slate-600 text-sm">
+                      <span className="mt-1.5 w-1.5 h-1.5 bg-purple-400 rounded-full flex-shrink-0"></span>
+                      {task}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <div className="flex items-start gap-3 bg-blue-50 p-4 rounded-lg text-blue-800 text-sm">
-                <DollarSign className="flex-shrink-0 mt-0.5" size={18}/>
+                <DollarSign className="flex-shrink-0 mt-0.5" size={18} />
                 <p><strong>Catatan Gaji:</strong> {service.note}</p>
               </div>
             </div>
@@ -113,32 +113,32 @@ export default function Services() {
 
       <section className="bg-white py-16 border-t border-slate-100">
         <div className="max-w-5xl mx-auto px-4 text-center">
-            <span className="text-purple-600 font-bold tracking-wider text-sm uppercase">Mengapa Memilih Kami?</span>
-            <h2 className="text-3xl font-bold text-slate-900 mt-2 mb-10">Standar Kualitas Penyalur Pembantu Indonesia</h2>
-            
-            <div className="grid md:grid-cols-3 gap-8 text-left">
-                <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition">
-                    <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-4">
-                        <ShieldCheck size={24} />
-                    </div>
-                    <h3 className="font-bold text-lg mb-2">Pemeriksaan Latar Belakang</h3>
-                    <p className="text-slate-600 text-sm">Setiap pekerja melalui proses screening identitas (KTP/KK) dan pengecekan riwayat kriminal untuk keamanan keluarga Anda.</p>
-                </div>
-                <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition">
-                    <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
-                        <Star size={24} />
-                    </div>
-                    <h3 className="font-bold text-lg mb-2">Pelatihan Standar</h3>
-                    <p className="text-slate-600 text-sm">Kami memberikan pembekalan dasar mengenai etika kerja, kebersihan, dan penggunaan peralatan rumah tangga modern.</p>
-                </div>
-                <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition">
-                    <div className="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4">
-                        <Clock size={24} />
-                    </div>
-                    <h3 className="font-bold text-lg mb-2">Proses Cepat</h3>
-                    <p className="text-slate-600 text-sm">Database kami selalu diperbarui (real-time). Anda bisa mendapatkan kandidat siap kerja dalam waktu kurang dari 24 jam.</p>
-                </div>
+          <span className="text-purple-600 font-bold tracking-wider text-sm uppercase">Mengapa Memilih Kami?</span>
+          <h2 className="text-3xl font-bold text-slate-900 mt-2 mb-10">Standar Kualitas Penyalur Pembantu Indonesia</h2>
+
+          <div className="grid md:grid-cols-3 gap-8 text-left">
+            <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition">
+              <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-4">
+                <ShieldCheck size={24} />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Pemeriksaan Latar Belakang</h3>
+              <p className="text-slate-600 text-sm">Setiap pekerja melalui proses screening identitas (KTP/KK) dan pengecekan riwayat kriminal untuk keamanan keluarga Anda.</p>
             </div>
+            <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition">
+              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
+                <Star size={24} />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Pelatihan Standar</h3>
+              <p className="text-slate-600 text-sm">Kami memberikan pembekalan dasar mengenai etika kerja, kebersihan, dan penggunaan peralatan rumah tangga modern.</p>
+            </div>
+            <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-md transition">
+              <div className="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4">
+                <Clock size={24} />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Proses Cepat</h3>
+              <p className="text-slate-600 text-sm">Database kami selalu diperbarui (real-time). Anda bisa mendapatkan kandidat siap kerja dalam waktu kurang dari 24 jam.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -149,11 +149,11 @@ export default function Services() {
 
       <section className="py-12 bg-purple-700 text-white text-center">
         <div className="max-w-4xl mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-4">Butuh Penawaran Khusus?</h2>
-            <p className="mb-8 text-purple-100">Hubungi kami untuk konsultasi kebutuhan spesifik dan dapatkan profil kandidat yang paling cocok.</p>
-            <button onClick={() => window.open("https://wa.me/6285781823040", "_blank")} className="bg-white text-purple-700 px-8 py-3 rounded-full font-bold hover:bg-purple-50 transition shadow-lg">
-                Hubungi Admin Sekarang
-            </button>
+          <h2 className="text-2xl font-bold mb-4">Butuh Penawaran Khusus?</h2>
+          <p className="mb-8 text-purple-100">Hubungi kami untuk konsultasi kebutuhan spesifik dan dapatkan profil kandidat yang paling cocok.</p>
+          <button onClick={() => window.open("https://wa.me/628139511409", "_blank")} className="bg-white text-purple-700 px-8 py-3 rounded-full font-bold hover:bg-purple-50 transition shadow-lg">
+            Hubungi Admin Sekarang
+          </button>
         </div>
       </section>
 
