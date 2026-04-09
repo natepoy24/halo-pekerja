@@ -54,7 +54,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-800">WhatsApp</h3>
-                    <p className="text-slate-600">0857-8182-3040</p>
+                    <p className="text-slate-600">0813-9511-409</p>
                   </div>
                 </div>
 
